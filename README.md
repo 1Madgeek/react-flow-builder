@@ -2,6 +2,10 @@
 
 **FlowBuilder** is an open-source, lightweight, and flexible flow builder designed to make process mapping simple, intuitive, and manageable. Unlike other flow libraries, FlowBuilder avoids unnecessary bulkiness and focuses on delivering a streamlined experience for developers. With easy setup and rich customization options, FlowBuilder enables users to create and visualize workflows effectively.
 
+WIP...
+
+![Work In Progress](screenshots/screenshot-1.png)
+
 ## Features
 
 - **Manual Link Creation**: Quickly establish connections between blocks by manually selecting link points.

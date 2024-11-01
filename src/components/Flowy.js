@@ -34,38 +34,32 @@ class Flowy extends Component {
         const {flow} = this.props;
 
         const blockWidth = 150; // Assumed block width for centering
-        const blockHeight = 100; // Assumed block height
-
-        // Calculate the bounds of your blocks
-        const leftmost = Math.min(...blocks.map(block => block.position.x));
-        const rightmost = Math.max(...blocks.map(block => block.position.x)) + blockWidth;
-        const topmost = Math.min(...blocks.map(block => block.position.y));
-        const bottommost = Math.max(...blocks.map(block => block.position.y)) + blockHeight;
-
-        const layoutWidth = rightmost - leftmost;
-        const layoutHeight = bottommost - topmost;
 
         // Get the actual dimensions of the canvas div
         const canvasElement = document.querySelector('.canvas');
         const canvasWidth = canvasElement?.offsetWidth || 800;
-        const canvasHeight = 600;
 
-        // Calculate the offsets needed to center the layout
+        // Calculate the horizontal bounds of your blocks
+        const leftmost = Math.min(...blocks.map(block => block.position.x));
+        const rightmost = Math.max(...blocks.map(block => block.position.x)) + blockWidth;
+
+        const layoutWidth = rightmost - leftmost;
+
+        // Calculate the offset needed to center the layout horizontally
         const offsetX = (canvasWidth - layoutWidth) / 2 - leftmost;
-        const offsetY = (canvasHeight - layoutHeight) / 2 - topmost;
 
         const centeredBlocks = blocks.map((block) => {
             return {
                 ...block,
                 position: {
                     x: block.position.x + offsetX,
-                    y: block.position.y + offsetY,
+                    y: block.position.y, // Keep the y position as it is to respect topmost placement
                 },
             };
         });
 
         // Set new block positions
-        this.setState({blocks: centeredBlocks}, this.renderConnections);
+        this.setState({ blocks: centeredBlocks }, this.renderConnections);
     };
 
     handleMouseDown = (event, blockId) => {
@@ -438,7 +432,7 @@ class Flowy extends Component {
                 </div>
                 <div className="canvas"
                      style={{
-                         height: `${canvasHeight}px`,
+                         // height: `${canvasHeight}px`,
                      }}
                      onMouseUp={this.handleMouseUp}
                      onMouseMove={this.handleMouseMove}>

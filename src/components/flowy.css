@@ -62,8 +62,8 @@
 .canvas {
     position: relative;
     width: calc(100% - var(--flowy-element-stack-width));
-    min-height: 100%;
-    overflow: auto;
+    /*min-height: 100%;*/
+    overflow: scroll;
 }
 
 .canvas + .element-stack.collapse {
