@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import classNames from "classnames";
 
 class Block extends Component {
     constructor(props) {
@@ -12,8 +13,8 @@ class Block extends Component {
             position: 'absolute',
             width: '10px',
             height: '10px',
-            backgroundColor: 'yellow',
-            border: isActive ? '2px solid green' : '2px solid yellow', // Color indication for link placeholder
+            backgroundColor: 'transparent',
+            border: isActive ? '2px solid green' : '2px solid transparent',
             cursor: 'pointer',
             ...(position === 'top' && {top: -5, left: '50%', transform: 'translateX(-50%)'}),
             ...(position === 'right' && {top: '50%', right: -5, transform: 'translateY(-50%)'}),
@@ -41,19 +42,10 @@ class Block extends Component {
         return (
             <div
                 onMouseDown={onMouseDown}
+                className={classNames("block-item", {'active': isActive, 'branch': isBranch})}
                 style={{
-                    position: 'absolute',
                     left: block.position?.x,
                     top: block.position?.y,
-                    width: '100px',
-                    height: '100px',
-                    backgroundColor: isActive ? 'red' : isBranch ? 'orange' : 'blue',
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    border: '1px solid black',
                 }}
             >
                 <div style={{position: 'relative'}}>
@@ -62,23 +54,27 @@ class Block extends Component {
                     <div style={this.getLinkStyle('bottom')} onClick={() => onLinkClick('bottom')}/>
                     <div style={this.getLinkStyle('left')} onClick={() => onLinkClick('left')}/>
                     <div>
-                        <h4>Block {this.props.id}</h4>
-                        {(!isBranch && !isEnd) && (
-                            <>
-                                <button onClick={addBranch}
-                                        style={{marginTop: '10px', padding: '5px', cursor: 'pointer'}}>
-                                    Add Branch
-                                </button>
-                                {!isStart && (
-                                    <button onClick={convertToBranchBlock}
+                        <div className="block-item-header">
+                            <h4>Block {this.props.id}</h4>
+                        </div>
+                        <div className="block-item-body">
+                            {(!isBranch && !isEnd) && (
+                                <>
+                                    <button onClick={addBranch}
                                             style={{marginTop: '10px', padding: '5px', cursor: 'pointer'}}>
-                                        Convert to branch Branch
+                                        Add Branch
                                     </button>
-                                )}
-                            </>
-                        )}
+                                    {!isStart && (
+                                        <button onClick={convertToBranchBlock}
+                                                style={{marginTop: '10px', padding: '5px', cursor: 'pointer'}}>
+                                            Convert to branch Branch
+                                        </button>
+                                    )}
+                                </>
+                            )}
 
-                        {renderBlockActions}
+                            {renderBlockActions}
+                        </div>
                     </div>
                 </div>
             </div>

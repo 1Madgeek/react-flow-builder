@@ -7,7 +7,7 @@ users to create and visualize workflows effectively.
 
 WIP...
 
-![Work In Progress](screenshots/screenshot-2.png)
+![Work In Progress](screenshots/screenshot-3.png)
 
 ## Features
 

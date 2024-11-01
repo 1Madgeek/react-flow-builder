@@ -44,7 +44,7 @@ class FlowBuilder extends Component {
         const {blocks} = this.state;
         const {flow} = this.props;
 
-        const blockWidth = 150; // Assumed block width for centering
+        const blockWidth = 318;
 
         // Get the actual dimensions of the canvas div
         const canvasElement = document.querySelector('.canvas');
@@ -168,14 +168,14 @@ class FlowBuilder extends Component {
         // Define positive and negative child blocks
         const positiveChild = {
             id: blocks.length + 2,
-            position: {x: branchBlock.position.x - 150, y: branchBlock.position.y + 170},
+            position: {x: branchBlock.position.x - 250, y: branchBlock.position.y + 170},
             type: 'default',
             linkedBlocks: [],
         };
 
         const negativeChild = {
             id: blocks.length + 3,
-            position: {x: branchBlock.position.x + 150, y: branchBlock.position.y + 170},
+            position: {x: branchBlock.position.x + 250, y: branchBlock.position.y + 170},
             type: 'default',
             linkedBlocks: [],
         };
@@ -216,13 +216,13 @@ class FlowBuilder extends Component {
             // No children, prepare both positive and negative children
             positiveChild = {
                 id: blocks.length + 1,
-                position: {x: branchBlock.position.x - 150, y: branchBlock.position.y + 170},
+                position: {x: branchBlock.position.x - 250, y: branchBlock.position.y + 170},
                 type: 'default',
                 linkedBlocks: [],
             };
             negativeChild = {
                 id: blocks.length + 2,
-                position: {x: branchBlock.position.x + 150, y: branchBlock.position.y + 170},
+                position: {x: branchBlock.position.x + 250, y: branchBlock.position.y + 170},
                 type: 'default',
                 linkedBlocks: [],
             };
@@ -233,7 +233,7 @@ class FlowBuilder extends Component {
             positiveChild = this.getBlock(directDescendants[0]);
             negativeChild = {
                 id: blocks.length + 1,
-                position: {x: branchBlock.position.x + 150, y: branchBlock.position.y + 170},
+                position: {x: branchBlock.position.x + 500, y: branchBlock.position.y + 170},
                 type: 'default',
                 linkedBlocks: [],
             };
@@ -328,7 +328,7 @@ class FlowBuilder extends Component {
         // Determine new block position relative to the previous block
         const newBlockPosition = {
             x: prevBlock.position.x,
-            y: prevBlock.position.y + 150, // Set gap for vertical or adjust for horizontal layouts
+            y: prevBlock.position.y + 220, // Set gap for vertical or adjust for horizontal layouts
         };
 
         // Create new block with a unique ID
@@ -435,7 +435,7 @@ class FlowBuilder extends Component {
     renderConnections = () => {
         const {blocks, links} = this.state;
 
-        const blockWidth = 150;
+        const blockWidth = 318;
         const blockHeight = 100;
 
         return links.map((link, index) => {
@@ -462,9 +462,9 @@ class FlowBuilder extends Component {
                     key={`${link.from}-${link.to}`}
                     style={{
                         position: 'absolute',
-                        left: -25,//Math.min(x1, x2) - 50,
-                        top: 0,//Math.min(y1, y2),
-                        width: Math.abs(x2 - x1) + 100,
+                        left: 0,
+                        top: 0,
+                        width: Math.abs(x2 - x1),
                         height: Math.abs(y2 - y1) + 50,
                         pointerEvents: 'none',
                     }}
@@ -489,21 +489,22 @@ class FlowBuilder extends Component {
                                 onClick={() => this.addBlockBetween(link.from, link.to)}
                                 style={{
                                     position: 'absolute',
-                                    left: x1 - 12.5, // Adjust button position as necessary
-                                    top: (y1 + y2) / 2 - 10,
+                                    left: x1 - 15, // Adjust button position as necessary
+                                    top: (y1 + y2) / 2 - 25,
                                     zIndex: 2,
                                     pointerEvents: 'all',
                                 }}>
-                                +
+                                <i className="ti ti-plus"></i>
                             </button>
                             <button className="remove-button" onClick={() => this.removeLink(link.from, link.to)}
                                     style={{
                                         position: 'absolute',
-                                        left: x1 - 12.5, // Adjust button position as necessary
-                                        top: (y1 + y2) / 2 + 20,
+                                        left: x1 - 15, // Adjust button position as necessary
+                                        top: (y1 + y2) / 2 + 15,
                                         zIndex: 2,
                                         pointerEvents: 'all',
-                                    }}>x
+                                    }}>
+                                <i className="ti ti-x"></i>
                             </button>
                         </>
                     )}
@@ -527,13 +528,13 @@ class FlowBuilder extends Component {
                         onClick={() => isStartBlock ? this.addBlockAfterStart() : this.addBlock(block.id)}
                         style={{
                             position: 'absolute',
-                            left: x - 35, // Center-align button
-                            top: y + 10,
+                            left: x - 15, // Center-align button
+                            top: y + 20,
                             zIndex: 2,
                             pointerEvents: 'all',
                         }}
                     >
-                        +
+                        <i className="ti ti-plus"></i>
                     </button>
                 );
             })

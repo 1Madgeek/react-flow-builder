@@ -5,7 +5,7 @@ class BlockPanel extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            collapseBlockPanel: false
+            collapseBlockPanel: true
         }
     }
 

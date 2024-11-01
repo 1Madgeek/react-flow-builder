@@ -1,5 +1,6 @@
 :root {
-    --flowy-block-panel-width: 280px;
+    --block-panel-width: 300px;
+    --block-item-width: 318px;
 }
 
 .canvas-container {
@@ -19,7 +20,7 @@
 
 /** Block Panel  **/
 .block-panel {
-    width: var(--flowy-block-panel-width);
+    width: var(--block-panel-width);
     background-color: #FFF;
     border: 1px solid #E8E8EF;
     box-sizing: border-box;
@@ -63,21 +64,21 @@
 #close-block-panel {
     position: absolute;
     top: 0;
-    margin-left: calc(var(--flowy-block-panel-width) - 3px);
+    margin-left: calc(var(--block-panel-width) - 3px);
     background-color: #FFF;
     border-radius: 0 5px 5px 0;
     border-bottom: 1px solid #E8E8EF;
     border-right: 1px solid #E8E8EF;
     border-top: 1px solid #E8E8EF;
-    width: 53px;
-    height: 53px;
+    width: 40px;
+    height: 40px;
     text-align: center;
     z-index: 10;
     transition: all .25s cubic-bezier(.05, .03, .35, 1);
 }
 
 #close-block-panel img {
-    margin-top: 15px;
+    margin-top: 8px;
 }
 
 .block-panel.collapse #close-block-panel {
@@ -149,7 +150,7 @@
 /** Canvas  **/
 .canvas {
     position: relative;
-    width: calc(100% - var(--flowy-block-panel-width));
+    width: calc(100% - var(--block-panel-width));
     /*min-height: 100%;*/
     overflow: scroll;
 }
@@ -158,27 +159,71 @@
     width: 100%;
 }
 
+/** Block Item **/
+.block-item {
+    background: #FFFFFF;
+    position: absolute;
+    cursor: pointer;
+    min-height: 100px;
+    width: var(--block-item-width);
+    border: 1px solid transparent;
+    transition-property: box-shadow, height;
+    transition-duration: .2s;
+    transition-timing-function: cubic-bezier(.05, .03, .35, 1);
+    border-radius: 5px;
+    box-shadow: 0 4px 30px rgba(22, 33, 74, 0.05);
+    box-sizing: border-box;
+}
+
+.block-item.active {
+    border: 2px solid #217CE8;
+    box-shadow: 0 4px 30px rgba(22, 33, 74, 0.08);
+}
+
+.block-item.branch {
+    background: #facd94;
+}
+
+.block-item .block-item-header {
+    border-bottom: 1px solid rgb(4 32 69 / 10%);
+}
+
+.block-item .block-item-header,
+.block-item .block-item-body {
+    padding: 15px;
+}
+
+.block-item .block-item-header h4 {
+    margin: 0;
+    text-align: start;
+}
+
 /* Add button styling */
 .add-button {
-    width: 25px;
-    height: 25px;
-    background-color: green;
+    width: 30px;
+    height: 30px;
+    background-color: #2196F3;
     border: none;
     color: white;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
     text-align: center;
 }
 
 .remove-button {
-    width: 25px;
-    height: 25px;
+    width: 30px;
+    height: 30px;
     background-color: red;
     border: none;
     color: white;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
     text-align: center;
+}
+
+.add-button .ti,
+.remove-button .ti {
+    font-weight: 700;
 }
