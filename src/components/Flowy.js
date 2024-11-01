@@ -59,7 +59,7 @@ class Flowy extends Component {
         });
 
         // Set new block positions
-        this.setState({ blocks: centeredBlocks }, this.renderConnections);
+        this.setState({blocks: centeredBlocks}, this.renderConnections);
     };
 
     handleMouseDown = (event, blockId) => {
@@ -368,19 +368,29 @@ class Flowy extends Component {
                         />
                     </svg>
                     {!isBranchPath && (
-                        <button
-                            className="add-button"
-                            onClick={() => this.addBlockBetween(link.from, link.to)}
-                            style={{
-                                position: 'absolute',
-                                left: x1 - 12.5, // Adjust button position as necessary
-                                top: (y1 + y2) / 2 - 10,
-                                zIndex: 2,
-                                pointerEvents: 'all',
-                            }}
-                        >
-                            +
-                        </button>
+                        <>
+                            <button
+                                className="add-button"
+                                onClick={() => this.addBlockBetween(link.from, link.to)}
+                                style={{
+                                    position: 'absolute',
+                                    left: x1 - 12.5, // Adjust button position as necessary
+                                    top: (y1 + y2) / 2 - 10,
+                                    zIndex: 2,
+                                    pointerEvents: 'all',
+                                }}>
+                                +
+                            </button>
+                            <button className="remove-button" onClick={() => this.removeLink(link.from, link.to)}
+                                    style={{
+                                        position: 'absolute',
+                                        left: x1 - 12.5, // Adjust button position as necessary
+                                        top: (y1 + y2) / 2 + 20,
+                                        zIndex: 2,
+                                        pointerEvents: 'all',
+                                    }}>x
+                            </button>
+                        </>
                     )}
                 </div>
             );
@@ -413,6 +423,97 @@ class Flowy extends Component {
             })
         );
     };
+
+    removeBlockAndDescendants = (blockId) => {
+        const {blocks, links} = this.state;
+
+        // Find all descendant block IDs using the links
+        const findDescendants = (id) => {
+            let descendants = [];
+            links.forEach(link => {
+                if (link.from === id) {
+                    descendants.push(link.to);
+                    descendants = descendants.concat(findDescendants(link.to));
+                }
+            });
+            return descendants;
+        };
+
+        // Check if the block is directly linked from a branch
+        const isLinkedFromBranch = links.some(link =>
+            link.to === blockId && this.getBlock(link.from)?.type === 'branch'
+        );
+
+        if (isLinkedFromBranch) {
+            alert('Cannot delete a block that is part of a branch connection.');
+            return; // Skip deleting if it's linked from a branch
+        }
+
+        // Collect all blocks to be deleted
+        const descendants = findDescendants(blockId);
+        const blocksToDelete = [blockId, ...descendants];
+
+        // Update blocks and links excluding these
+        const updatedBlocks = blocks.filter(block => !blocksToDelete.includes(block.id));
+        const updatedLinks = links.filter(link => !(blocksToDelete.includes(link.from) || blocksToDelete.includes(link.to)));
+
+        this.setState({
+            blocks: updatedBlocks,
+            links: updatedLinks,
+        }, this.renderConnections);
+    };
+
+    renderBlockActions = (blockId) => {
+        const {links} = this.state;
+        const block = this.getBlock(blockId)
+        if (block.type === 'start' || block.type === 'end') return null; // Don't allow deletion of these
+
+        // Determine if the block is directly linked as a child of a branch
+        const isLinkedFromBranch = links.some(link =>
+            link.to === block.id && this.getBlock(link.from)?.type === 'branch'
+        );
+        return (
+            <div className="block-actions">
+                {!isLinkedFromBranch && (
+                    <button onClick={() => this.removeBlockAndDescendants(block.id)}>
+                        Remove Block
+                    </button>
+                )}
+            </div>
+        );
+    };
+
+    removeLink = (fromId, toId) => {
+        const { blocks, links } = this.state;
+
+        // Remove the specific link in question
+        const updatedLinks = links.filter(link => !(link.from === fromId && link.to === toId));
+
+        // Function to recursively find all descendants of a given block
+        const findDescendants = (blockId) => {
+            let descendants = [];
+            updatedLinks.forEach(link => {
+                if (link.from === blockId) {
+                    descendants.push(link.to);
+                    descendants = descendants.concat(findDescendants(link.to));
+                }
+            });
+            return descendants;
+        };
+
+        // Find all descendants of the block that is potentially disjointed
+        const blocksToRemove = [toId, ...findDescendants(toId)];
+
+        // Now filter out blocks to remove and keep only the relevant links
+        const updatedBlocks = blocks.filter(block => !blocksToRemove.includes(block.id));
+        const newLinks = updatedLinks.filter(link => !blocksToRemove.includes(link.to));
+
+        this.setState({
+            blocks: updatedBlocks,
+            links: newLinks,
+        }, this.renderConnections);
+    };
+
     getBlock = (id) => {
         return this.state.blocks.find((block) => block.id === id);
     };
@@ -448,6 +549,7 @@ class Flowy extends Component {
                             onLinkClick={(position) => this.handleLinkClick(position, block.id)}
                             isBranch={block.type === 'branch'}
                             addBranch={() => this.addBranch(block.id)}
+                            renderBlockActions={this.renderBlockActions(block.id)}
                             activeLinkPosition={
                                 this.state.activeLinkPosition?.blockId === block.id
                                     ? this.state.activeLinkPosition.position

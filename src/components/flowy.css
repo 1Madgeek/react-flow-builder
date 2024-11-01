@@ -82,3 +82,15 @@
     font-size: 16px;
     text-align: center;
 }
+
+.remove-button{
+    width: 25px;
+    height: 25px;
+    background-color: red;
+    border: none;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+}

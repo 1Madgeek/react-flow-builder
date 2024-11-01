@@ -23,7 +23,16 @@ class Block extends Component {
     }
 
     render() {
-        const {position, onMouseDown, onLinkClick, activeLinkPosition, isActive, isBranch, addBranch} = this.props;
+        const {
+            position,
+            onMouseDown,
+            onLinkClick,
+            activeLinkPosition,
+            isActive,
+            isBranch,
+            addBranch,
+            renderBlockActions
+        } = this.props;
 
 
         return (
@@ -54,6 +63,7 @@ class Block extends Component {
                         <button onClick={addBranch} style={{marginTop: '10px', padding: '5px', cursor: 'pointer'}}>
                             Add Branch
                         </button>
+                        {renderBlockActions}
                     </div>
                 </div>
             </div>

@@ -22,6 +22,16 @@ FlowBuilder fills the gap between heavy, complex flow solutions and simpler, mor
 - **Marketing Automation Tools:** Ideal for mail marketing workflows and campaign automation, allowing marketing teams to visualize customer journeys, manage touchpoints, and streamline campaign flows.
 - **Business Process Automation:** Tailored for enterprise process automation, FlowBuilder is a great fit for designing complex business workflows. [Madgeek](https://www.madgeek.in), a leader in enterprise tools, specializes in creating solutions that simplify business processes and boost operational efficiency.
 
+### Credits
+
+This project was inspired by and borrows ideas from the following open-source projects:
+
+- [Flowy](https://github.com/alyssaxuu/flowy): A simple drag-and-drop library for creating flowcharts and workflows.
+- [Drawflow](https://github.com/jerosoler/Drawflow): A JavaScript library for creating flowcharts and diagrams with a user-friendly interface.
+- [Xyflow](https://github.com/xyflow/xyflow): A flow chart library that emphasizes ease of use and flexibility for developers.
+
+Thank you for your contributions to the open-source community!
+
 ## Contributing
 We encourage contributions to improve FlowBuilder! Here are a few guidelines to ensure a smooth collaboration:
 
