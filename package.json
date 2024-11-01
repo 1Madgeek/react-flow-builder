@@ -1,0 +1,71 @@
+{
+  "name": "@madgeek_in/react-flow-builder",
+  "version": "0.1.1",
+  "private": false,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "classnames": "^2.5.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "babel:build": "babel src --out-dir dist --copy-files"
+  },
+  "peerDependencies": {
+    "classnames": "^2.5.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "files": [
+    "dist",
+    "index.js",
+    "README.md"
+  ],
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "description": "**FlowBuilder** is an open-source, lightweight, and flexible flow builder designed to make process mapping simple, intuitive, and manageable. Unlike other flow libraries, FlowBuilder avoids unnecessary bulkiness and focuses on delivering a streamlined experience for developers. With easy setup and rich customization options, FlowBuilder enables users to create and visualize workflows effectively.",
+  "main": "dist/index.js",
+  "module": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1Madgeek/react-flow-builder.git"
+  },
+  "keywords": [
+    "FlowBuilder"
+  ],
+  "author": "Madgeek",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/1Madgeek/react-flow-builder/issues"
+  },
+  "homepage": "https://github.com/1Madgeek/react-flow-builder#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.25.9"
+  }
+}

@@ -1,0 +1,84 @@
+:root {
+    --flowy-element-stack-width: 350px;
+}
+
+.canvas-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-image: url('../assets/image/tile.png');
+    background-repeat: repeat;
+    background-size: 30px 30px;
+    background-color: #FBFBFB;
+    height: 100vh;
+}
+
+.element-stack {
+    width: var(--flowy-element-stack-width);
+    background-color: #FFF;
+    border: 1px solid #E8E8EF;
+    box-sizing: border-box;
+    padding-left: 20px;
+    height: 100%;
+    z-index: 2;
+    transition: all .25s cubic-bezier(.05, .03, .35, 1);
+}
+
+.element-stack.collapse {
+    width: 0;
+}
+
+#close-element-stack {
+    position: absolute;
+    top: 0;
+    margin-left: calc(var(--flowy-element-stack-width) - 23px);
+    background-color: #FFF;
+    border-radius: 0 5px 5px 0;
+    border-bottom: 1px solid #E8E8EF;
+    border-right: 1px solid #E8E8EF;
+    border-top: 1px solid #E8E8EF;
+    width: 53px;
+    height: 53px;
+    text-align: center;
+    z-index: 10;
+}
+
+#close-element-stack img {
+    margin-top: 15px;
+}
+
+.element-stack.collapse #close-element-stack {
+    margin-left: 0;
+}
+
+.element-stack.collapse #close-element-stack img {
+    transform: scaleX(-1)
+}
+
+.canvas {
+    position: relative;
+    width: calc(100% - var(--flowy-element-stack-width));
+    min-height: 100%;
+    overflow: auto;
+}
+
+.canvas + .element-stack.collapse {
+    width: 100%;
+}
+
+/* Add button styling */
+.add-button {
+    width: 25px;
+    height: 25px;
+    background-color: green;
+    border: none;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+}
