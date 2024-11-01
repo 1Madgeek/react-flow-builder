@@ -26,6 +26,7 @@
   },
   "files": [
     "dist",
+    "src",
     "index.js",
     "README.md"
   ],
@@ -49,7 +50,7 @@
   },
   "description": "**FlowBuilder** is an open-source, lightweight, and flexible flow builder designed to make process mapping simple, intuitive, and manageable. Unlike other flow libraries, FlowBuilder avoids unnecessary bulkiness and focuses on delivering a streamlined experience for developers. With easy setup and rich customization options, FlowBuilder enables users to create and visualize workflows effectively.",
   "main": "dist/index.js",
-  "module": "index.js",
+  "module": "src/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/1Madgeek/react-flow-builder.git"
