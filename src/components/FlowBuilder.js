@@ -1,9 +1,10 @@
 import React, {Component} from "react";
 import Block from "./Block";
 import './flowy.css';
-import classNames from "classnames";
+import '../assets/library/tabler-icons/tabler-icons.css'
+import BlockPanel from "./BlockPanel";
 
-class Flowy extends Component {
+class FlowBuilder extends Component {
 
     constructor(props) {
         super(props);
@@ -15,7 +16,6 @@ class Flowy extends Component {
             offset: {x: 0, y: 0},
             activeBlock: null,
             activeLinkPosition: null,
-            collapseElementStack: false
         };
     }
 
@@ -39,10 +39,6 @@ class Flowy extends Component {
         }, this.arrangeBlocks);
     }
 
-
-    toggleElementStackVisibility = (event) => {
-        this.setState(prev => ({collapseElementStack: !prev.collapseElementStack}))
-    }
 
     arrangeBlocks = () => {
         const {blocks} = this.state;
@@ -656,18 +652,11 @@ class Flowy extends Component {
     };
 
     render() {
-        const {canvasHeight, collapseElementStack} = this.state;
+        const {canvasHeight} = this.state;
 
         return (
             <div className="canvas-container">
-                <div className={classNames("element-stack", {
-                    "collapse": collapseElementStack
-                })}>
-                    <div id="close-element-stack" onClick={(event) => this.toggleElementStackVisibility(event)}>
-                        <img src="/image/closeleft.svg" alt={'Collapse'}/>
-                    </div>
-
-                </div>
+                <BlockPanel/>
                 <div className="canvas"
                      style={{
                          // height: `${canvasHeight}px`,
@@ -700,4 +689,4 @@ class Flowy extends Component {
     }
 }
 
-export default Flowy
+export default FlowBuilder

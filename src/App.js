@@ -1,10 +1,10 @@
 import './App.css';
-import Flowy from "./components/Flowy";
+import FlowBuilder from "./components/FlowBuilder";
 
 function App() {
     return (
         <div className="App">
-            <Flowy allowDragging={true} flow={'vertical'}/>
+            <FlowBuilder allowDragging={true} flow={'vertical'}/>
         </div>
     );
 }

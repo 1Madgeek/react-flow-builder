@@ -127,6 +127,15 @@ This project was inspired by and borrows ideas from the following open-source pr
 
 Thank you for your contributions to the open-source community!
 
+### Open Source Libraries Used
+
+This project utilizes several open-source libraries to provide a robust and responsive experience:
+
+- [React](https://reactjs.org/): A JavaScript library for building user interfaces, providing the foundation for responsive and dynamic components.
+- [Tabler Icons](https://tabler-icons.io/): A set of customizable and responsive SVG icons, enhancing the visual appeal and usability of the application.
+
+A huge thank you to these open-source communities for their invaluable contributions!
+
 ## Contributing
 
 We encourage contributions to improve FlowBuilder! Here are a few guidelines to ensure a smooth collaboration:

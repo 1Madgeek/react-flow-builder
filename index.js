@@ -1,3 +1,3 @@
-import Flowy from "./src/components/Flowy";
+import FlowBuilder from "./src/components/FlowBuilder";
 
-export default Flowy
+export default FlowBuilder
