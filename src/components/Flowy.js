@@ -8,9 +8,7 @@ class Flowy extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            blocks: [
-                {id: 1, position: {x: 50, y: 50}, type: 'default', linkedBlocks: []},
-            ],
+            blocks: [],
             links: [],
             dragging: null,
             canvasHeight: 600,
@@ -22,8 +20,25 @@ class Flowy extends Component {
     }
 
     componentDidMount() {
-        this.arrangeBlocks();
+        this.initializeCanvas()
     }
+
+    initializeCanvas = () => {
+        const initialBlocks = [
+            {
+                id: 0,
+                position: {x: 50, y: 50},
+                type: 'start',
+                linkedBlocks: []
+            },
+        ];
+
+        this.setState({
+            blocks: initialBlocks,
+            links: [],
+        }, this.arrangeBlocks);
+    }
+
 
     toggleElementStackVisibility = (event) => {
         this.setState(prev => ({collapseElementStack: !prev.collapseElementStack}))
@@ -140,7 +155,48 @@ class Flowy extends Component {
         });
     };
 
-    addBranch = (branchId) => {
+    addBranch = (prevBlockId) => {
+        const {blocks} = this.state;
+
+        const prevBlock = this.getBlock(prevBlockId);
+        if (!prevBlock) return; // Safety check
+
+        // Define the new branch block
+        const branchBlock = {
+            id: blocks.length + 1,
+            position: {x: prevBlock.position.x, y: prevBlock.position.y + 170},
+            type: 'branch',
+            linkedBlocks: [],
+        };
+
+        // Define positive and negative child blocks
+        const positiveChild = {
+            id: blocks.length + 2,
+            position: {x: branchBlock.position.x - 150, y: branchBlock.position.y + 170},
+            type: 'default',
+            linkedBlocks: [],
+        };
+
+        const negativeChild = {
+            id: blocks.length + 3,
+            position: {x: branchBlock.position.x + 150, y: branchBlock.position.y + 170},
+            type: 'default',
+            linkedBlocks: [],
+        };
+
+        // Establish connections (links) from the branch block to children
+        const newLinks = [
+            {from: branchBlock.id, to: positiveChild.id, type: 'positive'},
+            {from: branchBlock.id, to: negativeChild.id, type: 'negative'},
+            {from: prevBlockId, to: branchBlock.id} // Link the previous block to the new branch
+        ];
+
+        this.setState((prevState) => ({
+            blocks: [...prevState.blocks, branchBlock, positiveChild, negativeChild],
+            links: [...prevState.links, ...newLinks],
+        }), this.renderConnections);
+    };
+    convertToBranchBlock = (branchId) => {
         const {blocks, links} = this.state;
         const branchBlock = this.getBlock(branchId);
 
@@ -211,6 +267,7 @@ class Flowy extends Component {
             }))),
         }), this.arrangeBlocks);
     };
+
     handleLinkClick = (position, blockId) => {
         const {activeLinkPosition} = this.state;
 
@@ -259,6 +316,10 @@ class Flowy extends Component {
         }, this.renderConnections);
     };
 
+    addBlockAfterStart = () => {
+        const startBlock = this.getBlock(this.state.blocks[0].id);
+        this.addBlock(startBlock.id);
+    }
 
     // Method to add a new block taking reference from a given previous block ID
     addBlock = (prevBlockId) => {
@@ -294,7 +355,6 @@ class Flowy extends Component {
             links: [...prevState.links, newLink],
         }), this.renderConnections); // Optionally, re-draw connection lines
     };
-
 
     addBlockBetween = (fromId, toId) => {
         const fromBlockIndex = this.state.blocks.findIndex(block => block.id === fromId);
@@ -345,6 +405,35 @@ class Flowy extends Component {
             links: updatedLinks,
             canvasHeight: newCanvasHeight,
         }), this.arrangeBlocks);
+    };
+
+    convertToEndBlock = (blockId) => {
+        const {blocks, links} = this.state;
+        const block = this.getBlock(blockId);
+
+        if (block.type === 'end') return; // Already an end block
+
+        // Remove all descendants if any
+        const descendants = this.findDescendants(blockId);
+        const blocksToKeep = blocks.filter(b => !descendants.includes(b.id));
+        const linksToKeep = links.filter(link => !descendants.includes(link.from));
+
+        const updatedBlock = {...block, type: 'end', linkedBlocks: []};
+
+        this.setState({
+            blocks: blocksToKeep.map(b => b.id === blockId ? updatedBlock : b),
+            links: linksToKeep,
+        }, this.renderConnections);
+    }
+
+    convertEndToDefaultBlock = (blockId) => {
+        this.setState((prevState) => ({
+            blocks: prevState.blocks.map(block =>
+                block.id === blockId && block.type === 'end'
+                    ? {...block, type: 'default'}
+                    : block
+            ),
+        }), this.renderConnections);
     };
 
     renderConnections = () => {
@@ -428,6 +517,7 @@ class Flowy extends Component {
             blocks.map((block) => {
                 // Last blocks in their chains need a "+" button
                 const isLastBlock = !links.some(link => link.from === block.id);
+                const isStartBlock = block.type === 'start';
 
                 if (!isLastBlock) return null;
 
@@ -438,7 +528,7 @@ class Flowy extends Component {
                     <button
                         key={`last-${block.id}`}
                         className="add-button"
-                        onClick={() => this.addBlock(block.id)}
+                        onClick={() => isStartBlock ? this.addBlockAfterStart() : this.addBlock(block.id)}
                         style={{
                             position: 'absolute',
                             left: x - 35, // Center-align button
@@ -454,20 +544,19 @@ class Flowy extends Component {
         );
     };
 
+    findDescendants = (blockId) => {
+        const {links} = this.state;
+        let descendants = [];
+        links.forEach(link => {
+            if (link.from === blockId) {
+                descendants.push(link.to);
+                descendants = descendants.concat(this.findDescendants(link.to));
+            }
+        });
+        return descendants;
+    }
     removeBlockAndDescendants = (blockId) => {
         const {blocks, links} = this.state;
-
-        // Find all descendant block IDs using the links
-        const findDescendants = (id) => {
-            let descendants = [];
-            links.forEach(link => {
-                if (link.from === id) {
-                    descendants.push(link.to);
-                    descendants = descendants.concat(findDescendants(link.to));
-                }
-            });
-            return descendants;
-        };
 
         // Check if the block is directly linked from a branch
         const isLinkedFromBranch = links.some(link =>
@@ -480,7 +569,7 @@ class Flowy extends Component {
         }
 
         // Collect all blocks to be deleted
-        const descendants = findDescendants(blockId);
+        const descendants = this.findDescendants(blockId);
         const blocksToDelete = [blockId, ...descendants];
 
         // Update blocks and links excluding these
@@ -496,13 +585,14 @@ class Flowy extends Component {
     renderBlockActions = (blockId) => {
         const {links} = this.state;
         const block = this.getBlock(blockId)
-        if (block.type === 'start' || block.type === 'end') return null; // Don't allow deletion of these
+        if (block.type === 'start') return null; // Don't allow deletion of these
 
         // Determine if the block is directly linked as a child of a branch
         const isDirectBranchDescendant = links.some(link =>
             link.to === block.id &&
             this.getBlock(link.from)?.type === 'branch'
         );
+        const hasDescendants = this.findDescendants(blockId).length
 
         return (
             <div className="block-actions">
@@ -510,6 +600,21 @@ class Flowy extends Component {
                     <button onClick={() => this.removeBlockAndDescendants(block.id)}>
                         Remove Block
                     </button>
+                )}
+
+                {!hasDescendants && (
+                    <>
+                        {block.type === 'default' && (
+                            <button onClick={() => this.convertToEndBlock(blockId)}>
+                                Convert to End Block
+                            </button>
+                        )}
+                        {block.type === 'end' && (
+                            <button onClick={() => this.convertEndToDefaultBlock(blockId)}>
+                                Convert to Default Block
+                            </button>
+                        )}
+                    </>
                 )}
             </div>
         );
@@ -575,11 +680,10 @@ class Flowy extends Component {
                     {this.state.blocks.map((block) => (
                         <Block
                             key={block.id}
-                            id={block.id}
-                            position={block.position}
+                            block={block}
                             onMouseDown={(event) => this.handleMouseDown(event, block.id)}
                             onLinkClick={(position) => this.handleLinkClick(position, block.id)}
-                            isBranch={block.type === 'branch'}
+                            convertToBranchBlock={() => this.convertToBranchBlock(block.id)}
                             addBranch={() => this.addBranch(block.id)}
                             renderBlockActions={this.renderBlockActions(block.id)}
                             activeLinkPosition={

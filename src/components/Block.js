@@ -24,24 +24,27 @@ class Block extends Component {
 
     render() {
         const {
-            position,
+            block,
             onMouseDown,
             onLinkClick,
             activeLinkPosition,
             isActive,
-            isBranch,
+            convertToBranchBlock,
             addBranch,
             renderBlockActions
         } = this.props;
 
+        const isBranch = block.type === 'branch';
+        const isStart = block.type === 'start';
+        const isEnd = block.type === 'end';
 
         return (
             <div
                 onMouseDown={onMouseDown}
                 style={{
                     position: 'absolute',
-                    left: position?.x,
-                    top: position?.y,
+                    left: block.position?.x,
+                    top: block.position?.y,
                     width: '100px',
                     height: '100px',
                     backgroundColor: isActive ? 'red' : isBranch ? 'orange' : 'blue',
@@ -60,9 +63,21 @@ class Block extends Component {
                     <div style={this.getLinkStyle('left')} onClick={() => onLinkClick('left')}/>
                     <div>
                         <h4>Block {this.props.id}</h4>
-                        <button onClick={addBranch} style={{marginTop: '10px', padding: '5px', cursor: 'pointer'}}>
-                            Add Branch
-                        </button>
+                        {(!isBranch && !isEnd) && (
+                            <>
+                                <button onClick={addBranch}
+                                        style={{marginTop: '10px', padding: '5px', cursor: 'pointer'}}>
+                                    Add Branch
+                                </button>
+                                {!isStart && (
+                                    <button onClick={convertToBranchBlock}
+                                            style={{marginTop: '10px', padding: '5px', cursor: 'pointer'}}>
+                                        Convert to branch Branch
+                                    </button>
+                                )}
+                            </>
+                        )}
+
                         {renderBlockActions}
                     </div>
                 </div>
