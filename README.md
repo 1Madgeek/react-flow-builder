@@ -17,6 +17,67 @@ WIP...
 
 FlowBuilder fills the gap between heavy, complex flow solutions and simpler, more manageable setups. Designed to support various workflow applications, FlowBuilder gives developers the freedom to customize and integrate workflows without the overhead.
 
+
+## Flow Builder Features and Functionalities
+
+### Core Features
+
+1. [x] **Block Management:**
+    - **Add Blocks**: Dynamically add blocks to the canvas.
+    - **Remove Blocks**: Remove blocks and automatically delete their descendant blocks.
+    - **Convert Block to Branch**: Transform a regular block into a branch block with constraints to maintain positive and negative paths.
+
+2. [x] **Branch Logic:**
+    - **Positive and Negative Paths**: Ensure each branch block maintains exactly two children, representing positive and negative paths.
+    - **Prevent Invalid Branch Creation**: Disallow conversion if the block violates branch constraints (e.g., more than two descendants).
+
+3. [x] **Link Management:**
+    - **Create Links**: Connect blocks to establish flow paths.
+    - **Remove Links**: Remove links, and if resulting blocks are disjointed (i.e., not connected to a root), remove those blocks.
+
+4. [x] **Drag-and-Drop Functionality:**
+    - **Individual Block Movement**: Allow users to drag individual blocks to new positions.
+    - **Canvas Drag**: Enable dragging of the entire canvas and its content if specific user settings are selected.
+
+5. [x] **Auto-Arrangement and Centering:**
+    - **Arrange Blocks**: Automatically center blocks horizontally while maintaining their top positions.
+    - **Responsive Positioning**: Dynamic adjustment for different screen sizes.
+
+### User Interface Features
+
+1. [x] **Interactive Elements:**
+    - **"+" Button**: Add new blocks to existing connections.
+    - **"Remove" Button**: Remove blocks or links through direct interaction.
+
+2. [x] **Styling and Display:**
+    - **Block Appearance**: Differentiate block types with unique colors and labels using a consistent design language.
+    - **Connection Paths**: Render connections with SVG paths, adjusting for straight or "L"-shaped paths to indicate flow or branching.
+
+
+### Notifications and Feedback
+
+1. [ ] **Alert Messages**: Provide user-friendly notifications when disallowed actions are attempted (e.g., trying to delete protected branch children).
+
+2. [ ] **In-App Guidance**: Tooltips or instructional text for first-time users or complex actions.
+
+### Advanced Functionalities
+
+1. [ ] **Undo/Redo Functionality**: Allow users to undo or redo their most recent changes.
+
+2. [ ] **Exporting Workflows**: Provide options to save or export workflow configurations for sharing or later use.
+
+3. [ ] **Enhanced Conditional Logic**: Enable complex branching conditions, allowing for more advanced workflows based on dynamic data or inputs.
+
+4. [ ] **Customizable UI**: Options for users to customize the look and feel of their canvas, blocks, and connections.
+
+### Future Enhancements
+
+1. [ ] **Collaboration Features**: Enable multiple users to collaborate on the same workflow in real-time.
+
+2. [ ] **Zoom and Pan Controls**: Implement zooming and panning to navigate larger workflows easily.
+
+3. [ ] **Version Control**: Maintain history and versioning for workflows, providing rollback capabilities.
+
 ## Use Cases
 - **AI Event-based Workflow Automation:** Perfect for AI tools that need dynamic flow designs to handle conditional and event-based workflows. Define sequences for actions based on real-time events and improve decision-making automation.
 - **Marketing Automation Tools:** Ideal for mail marketing workflows and campaign automation, allowing marketing teams to visualize customer journeys, manage touchpoints, and streamline campaign flows.

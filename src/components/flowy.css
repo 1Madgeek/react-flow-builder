@@ -66,7 +66,7 @@
     overflow: scroll;
 }
 
-.canvas + .element-stack.collapse {
+.element-stack.collapse ~ .canvas {
     width: 100%;
 }
 
@@ -83,7 +83,7 @@
     text-align: center;
 }
 
-.remove-button{
+.remove-button {
     width: 25px;
     height: 25px;
     background-color: red;
