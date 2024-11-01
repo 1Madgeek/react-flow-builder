@@ -29,6 +29,7 @@ This project was inspired by and borrows ideas from the following open-source pr
 - [Flowy](https://github.com/alyssaxuu/flowy): A simple drag-and-drop library for creating flowcharts and workflows.
 - [Drawflow](https://github.com/jerosoler/Drawflow): A JavaScript library for creating flowcharts and diagrams with a user-friendly interface.
 - [Xyflow](https://github.com/xyflow/xyflow): A flow chart library that emphasizes ease of use and flexibility for developers.
+- [flow-builder](https://github.com/bytedance/flow-builder): A highly customizable streaming flow builder.
 
 Thank you for your contributions to the open-source community!
 
