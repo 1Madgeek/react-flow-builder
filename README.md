@@ -4,7 +4,7 @@
 
 WIP...
 
-![Work In Progress](screenshots/screenshot-1.png)
+![Work In Progress](screenshots/screenshot-2.png)
 
 ## Features
 

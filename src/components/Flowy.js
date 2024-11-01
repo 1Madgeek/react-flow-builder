@@ -141,46 +141,76 @@ class Flowy extends Component {
     };
 
     addBranch = (branchId) => {
+        const {blocks, links} = this.state;
         const branchBlock = this.getBlock(branchId);
 
-        if (branchBlock && branchBlock.type === 'branch') {
-            console.warn("Block is already a branch. Cannot add another branch.");
+        if (!branchBlock || branchBlock.type === 'branch') {
+            alert("Block is already a branch or invalid.");
             return;
         }
 
-        const positiveChild = {
-            id: this.state.blocks.length + 1,
-            position: {x: branchBlock.position.x - 150, y: branchBlock.position.y + 170}, // Positioning for positive branch
-            type: 'default', // Type for child blocks
-            linkedBlocks: [],
-        };
+        // Locate existing direct descendants
+        const directDescendants = links.filter(link => link.from === branchId).map(link => link.to);
 
-        const negativeChild = {
-            id: this.state.blocks.length + 2,
-            position: {x: branchBlock.position.x + 150, y: branchBlock.position.y + 170}, // Positioning for negative branch
-            type: 'default',
-            linkedBlocks: [],
-        };
+        if (directDescendants.length > 2) {
+            alert("Cannot convert to branch: Block already has more than two descendants.");
+            return;
+        }
+
+        let positiveChild, negativeChild;
+        const newChildren = [];
+
+        if (directDescendants.length === 0) {
+            // No children, prepare both positive and negative children
+            positiveChild = {
+                id: blocks.length + 1,
+                position: {x: branchBlock.position.x - 150, y: branchBlock.position.y + 170},
+                type: 'default',
+                linkedBlocks: [],
+            };
+            negativeChild = {
+                id: blocks.length + 2,
+                position: {x: branchBlock.position.x + 150, y: branchBlock.position.y + 170},
+                type: 'default',
+                linkedBlocks: [],
+            };
+            newChildren.push(positiveChild, negativeChild);
+
+        } else if (directDescendants.length === 1) {
+            // Existing descendant becomes positive, create a new negative
+            positiveChild = this.getBlock(directDescendants[0]);
+            negativeChild = {
+                id: blocks.length + 1,
+                position: {x: branchBlock.position.x + 150, y: branchBlock.position.y + 170},
+                type: 'default',
+                linkedBlocks: [],
+            };
+            newChildren.push(negativeChild);
+
+        } else {
+            // Two children already - assume ordered for positive and negative
+            positiveChild = this.getBlock(directDescendants[0]);
+            negativeChild = this.getBlock(directDescendants[1]);
+        }
 
         const newBranchBlock = {
             ...branchBlock,
             type: 'branch',
-            linkedBlocks: [positiveChild.id, negativeChild.id], // Establishes connection to children
+            linkedBlocks: [positiveChild.id, negativeChild.id],
         };
 
-        // Remove the original block, add the branches, and the new branch block
+        // Update state with new branch block
         this.setState((prevState) => ({
             blocks: prevState.blocks.map(block =>
                 block.id === branchId ? newBranchBlock : block
-            ).concat([positiveChild, negativeChild]),
-            links: prevState.links.concat([
-                {from: branchId, to: positiveChild.id, type: 'positive'},
-                {from: branchId, to: negativeChild.id, type: 'negative'}
-            ]),
-            canvasHeight: Math.max(prevState.canvasHeight, branchBlock.position.y + 300),
+            ).concat(newChildren),
+            links: prevState.links.concat(newChildren.map(child => ({
+                from: branchId,
+                to: child.id,
+                type: child === positiveChild ? 'positive' : 'negative',
+            }))),
         }), this.arrangeBlocks);
     };
-
     handleLinkClick = (position, blockId) => {
         const {activeLinkPosition} = this.state;
 
@@ -469,12 +499,14 @@ class Flowy extends Component {
         if (block.type === 'start' || block.type === 'end') return null; // Don't allow deletion of these
 
         // Determine if the block is directly linked as a child of a branch
-        const isLinkedFromBranch = links.some(link =>
-            link.to === block.id && this.getBlock(link.from)?.type === 'branch'
+        const isDirectBranchDescendant = links.some(link =>
+            link.to === block.id &&
+            this.getBlock(link.from)?.type === 'branch'
         );
+
         return (
             <div className="block-actions">
-                {!isLinkedFromBranch && (
+                {!isDirectBranchDescendant && (
                     <button onClick={() => this.removeBlockAndDescendants(block.id)}>
                         Remove Block
                     </button>
@@ -484,7 +516,7 @@ class Flowy extends Component {
     };
 
     removeLink = (fromId, toId) => {
-        const { blocks, links } = this.state;
+        const {blocks, links} = this.state;
 
         // Remove the specific link in question
         const updatedLinks = links.filter(link => !(link.from === fromId && link.to === toId));
