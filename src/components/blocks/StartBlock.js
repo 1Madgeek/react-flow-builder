@@ -39,11 +39,6 @@ class StartBlock extends Component {
                             <h4>Start {this.props.id}</h4>
                         </div>
                         <div className="block-item-body">
-                            <button onClick={addBranch}
-                                    style={{marginTop: '10px', padding: '5px', cursor: 'pointer'}}>
-                                Add Branch
-                            </button>
-
                             {renderBlockActions}
                         </div>
                     </div>

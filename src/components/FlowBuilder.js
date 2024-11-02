@@ -193,7 +193,7 @@ class FlowBuilder extends Component {
         // Define the new branch block
         const branchBlock = {
             id: blocks.length + 1,
-            position: {x: prevBlock.position.x, y: prevBlock.position.y + 170},
+            position: {x: prevBlock.position.x, y: prevBlock.position.y + 220},
             type: 'branch',
             linkedBlocks: [],
         };
@@ -201,14 +201,14 @@ class FlowBuilder extends Component {
         // Define positive and negative child blocks
         const positiveChild = {
             id: blocks.length + 2,
-            position: {x: branchBlock.position.x - 250, y: branchBlock.position.y + 170},
+            position: {x: branchBlock.position.x - 250, y: branchBlock.position.y + 220},
             type: 'default',
             linkedBlocks: [],
         };
 
         const negativeChild = {
             id: blocks.length + 3,
-            position: {x: branchBlock.position.x + 250, y: branchBlock.position.y + 170},
+            position: {x: branchBlock.position.x + 250, y: branchBlock.position.y + 220},
             type: 'default',
             linkedBlocks: [],
         };
@@ -356,10 +356,13 @@ class FlowBuilder extends Component {
 
         const {blocks, links} = this.state;
 
+        const blockWidth = 100;
+        const scrollY = blockWidth + 120;
+
         // Determine new block position relative to the previous block
         const newBlockPosition = {
             x: prevBlock.position.x,
-            y: prevBlock.position.y + 220, // Set gap for vertical or adjust for horizontal layouts
+            y: prevBlock.position.y + scrollY, // Set gap for vertical or adjust for horizontal layouts
         };
 
         // Create new block with a unique ID
@@ -389,15 +392,15 @@ class FlowBuilder extends Component {
         const fromBlockIndex = this.state.blocks.findIndex(block => block.id === fromId);
         const toBlockIndex = this.state.blocks.findIndex(block => block.id === toId);
 
-        // Ensure from and to blocks are valid and in correct order
         if (fromBlockIndex < 0 || toBlockIndex < 0 || fromBlockIndex === toBlockIndex) return;
 
-        // Create new block position between the two blocks
+        // Find necessary block positions
         const fromBlock = this.state.blocks[fromBlockIndex];
         const toBlock = this.state.blocks[toBlockIndex];
+
         const newPosition = {
             x: (fromBlock.position.x + toBlock.position.x) / 2,
-            y: (fromBlock.position.y + toBlock.position.y) / 2 + 150,
+            y: (fromBlock.position.y + toBlock.position.y) / 2 + 120,  // Center y and add margin
         };
 
         const newBlock = {
@@ -407,33 +410,30 @@ class FlowBuilder extends Component {
             linkedBlocks: [],
         };
 
-        // Insert new block into the blocks array at the correct position
+        // Insert new block into the blocks array
         const updatedBlocks = [
-            ...this.state.blocks.slice(0, toBlockIndex), // blocks before toBlock
+            ...this.state.blocks.slice(0, toBlockIndex),
             newBlock,
-            ...this.state.blocks.slice(toBlockIndex), // blocks from toBlock onwards
+            ...this.state.blocks.slice(toBlockIndex)
         ];
 
         // Remove the existing link between fromId and toId
         const updatedLinks = this.state.links.filter(
-            (link) => !(link.from === fromId && link.to === toId)
+            link => !(link.from === fromId && link.to === toId)
         );
 
-        // Add new links from the original blocks to the new block
-        updatedLinks.push(
-            {from: fromId, to: newBlock.id},
-            {from: newBlock.id, to: toId}
-        );
+        // Add new links
+        updatedLinks.push({from: fromId, to: newBlock.id});
+        updatedLinks.push({from: newBlock.id, to: toId});
 
+        const blockHeight = 100;
 
-        // Update the canvas height based on the last block's position
-        const newCanvasHeight = updatedBlocks.length > 0 ? Math.max(...updatedBlocks.map(block => block.position.y + 250)) : 600; // Default height if no blocks
+        this.shiftBlocksDown(toId, updatedBlocks, updatedLinks, blockHeight);
 
-        this.setState((prevState) => ({
+        this.setState({
             blocks: updatedBlocks,
             links: updatedLinks,
-            canvasHeight: newCanvasHeight,
-        }), this.arrangeBlocks);
+        }, this.renderConnections);
     };
 
     convertToEndBlock = (blockId) => {
@@ -609,6 +609,42 @@ class FlowBuilder extends Component {
             blocks: updatedBlocks,
             links: updatedLinks,
         }, this.renderConnections);
+    };
+
+    /**
+     * Recursively shifts blocks down to make space for new additions in the workflow.
+     *
+     * @param {number} startBlockId - The ID of the block from where the shift should start.
+     * @param {Array} updatedBlocks - The array of updated blocks that need to be shifted.
+     * @param {Array} updatedLinks - The array of updated links to find descendants.
+     * @param {number} blockHeight - The assumed height of each block.
+     */
+    shiftBlocksDown = (startBlockId, updatedBlocks, updatedLinks, blockHeight = 100) => {
+        const shiftY = blockHeight + 170; // Adjust block separation to prevent overlap.
+        const seenBlocks = new Set();
+
+        const shiftRecursive = (blockId) => {
+            // Base condition: check for cycles or already shifted blocks
+            if (seenBlocks.has(blockId)) return;
+            seenBlocks.add(blockId);
+
+            // Find the block to shift
+            const block = updatedBlocks.find(block => block.id === blockId);
+            if (!block) return;
+
+            // Apply the shift downward
+            block.position.y += shiftY;
+
+            // Identify and shift its direct descendants
+            updatedLinks.forEach(link => {
+                if (link.from === blockId) {
+                    shiftRecursive(link.to);
+                }
+            });
+        };
+
+
+        shiftRecursive(startBlockId);
     };
 
     renderBlockActions = (blockId) => {

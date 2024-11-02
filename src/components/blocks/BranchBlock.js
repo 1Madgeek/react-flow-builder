@@ -55,24 +55,9 @@ class BranchBlock extends Component {
                     <div style={this.getLinkStyle('left')} onClick={() => onLinkClick('left')}/>
                     <div>
                         <div className="block-item-header">
-                            <h4>Block {this.props.id}</h4>
+                            <h4>Branch {this.props.id}</h4>
                         </div>
                         <div className="block-item-body">
-                            {(!isBranch && !isEnd) && (
-                                <>
-                                    <button onClick={addBranch}
-                                            style={{marginTop: '10px', padding: '5px', cursor: 'pointer'}}>
-                                        Add Branch
-                                    </button>
-                                    {!isStart && (
-                                        <button onClick={convertToBranchBlock}
-                                                style={{marginTop: '10px', padding: '5px', cursor: 'pointer'}}>
-                                            Convert to branch Branch
-                                        </button>
-                                    )}
-                                </>
-                            )}
-
                             {renderBlockActions}
                         </div>
                     </div>
