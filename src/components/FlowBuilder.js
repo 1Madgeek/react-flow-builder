@@ -523,6 +523,7 @@ class FlowBuilder extends Component {
     renderConnections = () => {
         const {blocks, links} = this.state;
         const blockWidth = 318; // Use a hard-coded value or retrieve dynamically if needed
+        const blockHeight = 100;
 
         return links.map((link, index) => {
             const fromBlock = this.getBlock(link.from);
@@ -533,13 +534,52 @@ class FlowBuilder extends Component {
             // Dynamically find block height
             const fromBlockElement = document.getElementById(`block-${fromBlock.id}`);
             const toBlockElement = document.getElementById(`block-${toBlock.id}`);
-            const blockHeight = 100;
 
             const blockActualHeight = fromBlockElement?.offsetHeight || blockHeight;
-            const fromX = fromBlock.position.x + blockWidth / 2;
-            const fromY = fromBlock.position.y + blockActualHeight;
-            const toX = toBlock.position.x + blockWidth / 2;
-            const toY = toBlock.position.y;
+            let fromX = fromBlock.position.x + blockWidth / 2;
+            let fromY = fromBlock.position.y + blockActualHeight;
+            let toX = toBlock.position.x + blockWidth / 2;
+            let toY = toBlock.position.y;
+
+            const { fromPosition, toPosition } = link;
+            // Calculate specific from/to positions if specified
+            switch (fromPosition) {
+                case 'top':
+                    fromY = fromBlock.position.y;
+                    break;
+                case 'right':
+                    fromX = fromBlock.position.x + blockWidth;
+                    fromY = fromBlock.position.y + blockHeight / 2;
+                    break;
+                case 'bottom':
+                    fromY = fromBlock.position.y + blockHeight;
+                    break;
+                case 'left':
+                    fromX = fromBlock.position.x;
+                    fromY = fromBlock.position.y + blockHeight / 2;
+                    break;
+                default:
+                    break;
+            }
+
+            switch (toPosition) {
+                case 'top':
+                    toY = toBlock.position.y;
+                    break;
+                case 'right':
+                    toX = toBlock.position.x + blockWidth;
+                    toY = toBlock.position.y + blockHeight / 2;
+                    break;
+                case 'bottom':
+                    toY = toBlock.position.y + blockHeight;
+                    break;
+                case 'left':
+                    toX = toBlock.position.x;
+                    toY = toBlock.position.y + blockHeight / 2;
+                    break;
+                default:
+                    break;
+            }
 
             const midX = (fromX + toX) / 2;
             const midY = (fromY + toY) / 2;

@@ -51,6 +51,9 @@ class DefaultBlock extends Component {
                  }}
             >
                 <div style={{position: 'relative'}}>
+                    <div style={this.getLinkStyle('top')} onClick={() => onLinkClick('top')}><IconLink/></div>
+                    <div style={this.getLinkStyle('right')} onClick={() => onLinkClick('right')}><IconLink/></div>
+                    <div style={this.getLinkStyle('left')} onClick={() => onLinkClick('left')}><IconLink/></div>
                     <div style={this.getLinkStyle('bottom')} onClick={() => onLinkClick('bottom')}><IconLink/></div>
                     <div>
                         <div className="block-item-header">
