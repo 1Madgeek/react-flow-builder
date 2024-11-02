@@ -1,5 +1,5 @@
 import './App.css';
-import {FlowBuilder} from '@madgeek_in/react-flow-builder'
+import FlowBuilder from "./components/FlowBuilder";
 
 function App() {
     return (
