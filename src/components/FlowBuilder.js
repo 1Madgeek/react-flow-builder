@@ -637,17 +637,29 @@ class FlowBuilder extends Component {
         );
     };
 
-    findDescendants = (blockId) => {
-        const {links} = this.state;
-        let descendants = [];
-        links.forEach(link => {
-            if (link.from === blockId) {
-                descendants.push(link.to);
-                descendants = descendants.concat(this.findDescendants(link.to));
-            }
-        });
-        return descendants;
-    }
+    findDescendants = (blockId, updatedLinks = []) => {
+        if (!updatedLinks.length) {
+            updatedLinks = this.state.links
+        }
+        const visited = new Set();  // To track visited nodes and prevent cycles
+        const collectDescendants = (id) => {
+            if (visited.has(id)) return [];
+            visited.add(id);
+
+            let descendants = [];
+            updatedLinks.forEach(link => {
+                if (link.from === id) {
+                    descendants.push(link.to);
+                    descendants.push(...collectDescendants(link.to));
+                }
+            });
+
+            return descendants;
+        };
+
+        return collectDescendants(blockId);
+    };
+
     removeBlockAndDescendants = (blockId) => {
         const {blocks, links} = this.state;
 
@@ -752,35 +764,32 @@ class FlowBuilder extends Component {
     removeLink = (fromId, toId) => {
         const {blocks, links} = this.state;
 
-        // Remove the specific link in question
+        // Remove the specified link
         const updatedLinks = links.filter(link => !(link.from === fromId && link.to === toId));
 
+        // Helper function to detect true disconnects
+        const isDisjoint = (blockId, links) => {
+            return !links.some(link => link.to === blockId);
+        };
 
-        // Identify nodes to potentially remove if disjointed
-        const blocksToRemove = [toId, ...this.findDescendants(toId, updatedLinks)];
 
-        // Determine if toId is an immediate child of a branch
-        const immediateBranchChildren = links.filter(link =>
-            this.getBlock(link.from)?.type === 'branch'
-        ).map(link => link.to);
-
-        const isImmediateBranchChild = immediateBranchChildren.includes(toId);
-
-        if (isImmediateBranchChild) {
-            // Remove only the link if an immediate branch child
-            this.setState({links: updatedLinks}, this.renderConnections);
-        } else {
-            // Remove both affected blocks and links if not immediate branch children
-            const filteredBlocks = blocks.filter(block => !blocksToRemove.includes(block.id));
-            const filteredLinks = updatedLinks.filter(link =>
-                !blocksToRemove.includes(link.from) && !blocksToRemove.includes(link.to)
-            );
-
-            this.setState({
-                blocks: filteredBlocks,
-                links: filteredLinks,
-            }, this.renderConnections);
+        // Check which blocks would become disjointed
+        const blocksToRemove = [];
+        if (isDisjoint(toId, updatedLinks)) {
+            blocksToRemove.push(toId, ...this.findDescendants(toId, updatedLinks));
         }
+
+        // Only remove nodes that are truly isolated
+        const updatedBlocks = blocks.filter(block => !blocksToRemove.includes(block.id));
+        const validLinks = updatedLinks.filter(link =>
+            updatedBlocks.some(block => block.id === link.from) &&
+            updatedBlocks.some(block => block.id === link.to)
+        );
+
+        this.setState({
+            blocks: updatedBlocks,
+            links: validLinks,
+        }, this.renderConnections);
     };
 
     getBlock = (id) => {
