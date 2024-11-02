@@ -346,24 +346,33 @@ class FlowBuilder extends Component {
     };
 
     linkBlocks = (fromData, toId, toPosition) => {
-        const {blockId, position} = fromData; // blockId here is the 'from' block
+        const {blockId, position} = fromData; // blockId refers to the 'from' block's ID
 
         this.setState((prevState) => {
             const fromBlock = this.getBlock(blockId);
             const toBlock = this.getBlock(toId);
 
             if (fromBlock && toBlock) {
-                // Get the parent blocks of fromBlock and toBlock
-                const fromParent = this.state.links.find(link => link.to === blockId)?.from;
-                const toParent = this.state.links.find(link => link.to === toId)?.from;
+                const toBlockParentLink = prevState.links.find(link => link.to === blockId);
+                const toBlockParentId = toBlockParentLink?.from;
+                const toBlockParentBlock = this.getBlock(toBlockParentId);
 
+                // Restrict linking back to the parent branch block
+                if (toBlockParentBlock?.type === 'branch' && toBlockParentId === toId) {
+                    alert('Cannot link immediate child to the parent branch block.');
+                    return prevState;
+                }
+
+                // Prevent linking if both are children of the same parent branch block
+                const fromParent = prevState.links.find(link => link.to === blockId)?.from;
+                const toParent = prevState.links.find(link => link.to === toId)?.from;
                 const fromParentBlock = this.getBlock(fromParent);
                 const toParentBlock = this.getBlock(toParent);
 
                 // Prevent linking if both are children of the same parent branch block
                 if (fromParent === toParent && fromParentBlock?.type === 'branch') {
                     alert('Cannot link immediate children of the same branch.');
-                    return null;
+                    return prevState;
                 }
             }
 
@@ -600,7 +609,7 @@ class FlowBuilder extends Component {
         }).concat(
             blocks.map((block) => {
                 const isLastBlock = !links.some(link => link.from === block.id);
-                if (!isLastBlock) return null;
+                if (!isLastBlock || block.type === 'end') return null; // Skip rendering for end block or if it is not the last in the chain
 
                 const blockElement = document.getElementById(`block-${block.id}`);
                 const blockActualHeight = blockElement?.offsetHeight || 130;

@@ -53,8 +53,8 @@ class EndBlock extends Component {
                 <div style={{position: 'relative'}}>
                     <div style={this.getLinkStyle('top')} onClick={() => onLinkClick('top')}><IconLink/></div>
                     <div>
-                        <div className="block-item-header" onClick={onClick}>
-                            <h4>End {this.props.id}</h4>
+                        <div className="block-item-header">
+                            <h4 onClick={onClick}>End {this.props.id}</h4>
                         </div>
                         <div className="block-item-body">
                             {renderBlockActions}

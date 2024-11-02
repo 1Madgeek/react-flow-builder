@@ -247,7 +247,7 @@
 }
 
 .block-item .block-item-header {
-    cursor: pointer;
+    cursor: grab;
     border-bottom: 1px solid rgb(4 32 69 / 10%);
 }
 
@@ -258,6 +258,8 @@
 
 .block-item .block-item-header h4 {
     margin: 0;
+    cursor: pointer;
+    width: fit-content;
     text-align: start;
 }
 

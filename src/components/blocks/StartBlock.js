@@ -36,8 +36,8 @@ class StartBlock extends Component {
             >
                 <div style={{position: 'relative'}}>
                     <div>
-                        <div className="block-item-header" onClick={onClick}>
-                            <h4>Start {this.props.id}</h4>
+                        <div className="block-item-header">
+                            <h4 onClick={onClick}>Start {this.props.id}</h4>
                         </div>
                         <div className="block-item-body">
                             {renderBlockActions}
