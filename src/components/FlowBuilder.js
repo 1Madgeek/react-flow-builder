@@ -8,7 +8,6 @@ import IconSquarePlus from "../assets/icon/IconSquarePlus";
 import PropertyPanel from "./PropertyPanel";
 
 class FlowBuilder extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -20,7 +19,6 @@ class FlowBuilder extends Component {
             activeBlock: null,
             activeLinkPosition: null,
             spaceDown: false,
-
             isBlockPanelOpen: false,
             isPropertyPanelOpen: false,
         };
@@ -40,6 +38,9 @@ class FlowBuilder extends Component {
         window.removeEventListener('keyup', this.handleKeyUp);
     }
 
+    /**
+     * Initializes the canvas with a starting block.
+     */
     initializeCanvas = () => {
         const initialBlocks = [
             {
@@ -56,57 +57,86 @@ class FlowBuilder extends Component {
         }, this.arrangeBlocks);
     }
 
-
+    /**
+     * Handles the key down events to detect the space bar press and prevent default behavior.
+     * @param {KeyboardEvent} e - The keyboard event triggered on keydown.
+     */
     handleKeyDown = (e) => {
         // Check if the space bar is pressed
         if (e.code === 'Space') {
-            e.preventDefault(); // Prevent default scrolling behavior
+            e.preventDefault();
             this.setState({spaceDown: true});
         }
     };
 
+    /**
+     * Handles the key up events to reset the space bar state when it is released.
+     * @param {KeyboardEvent} e - The keyboard event triggered on keyup.
+     */
     handleKeyUp = (e) => {
         // Reset the space bar state when key is released
         if (e.code === 'Space') {
             this.setState({spaceDown: false});
         }
     };
+
+    /**
+     * Selects a block and opens the appropriate panel based on the type.
+     * @param {number} blockId - The ID of the block to be selected.
+     * @param {string} [type='block'] - The type of panel to open ('block' or 'property').
+     */
     selectBlock = (blockId, type = 'block') => {
-        const block = this.getBlock(blockId)
+        const block = this.getBlock(blockId);
         this.setState({
             isBlockPanelOpen: type === 'block',
             isPropertyPanelOpen: type === 'property',
             activeBlock: block
-        })
+        });
     }
 
+    /**
+     * Handles the selection of a block based on its type during block panel interactions.
+     * @param {number} blockId - The ID of the block being selected.
+     * @param {string} type - The type of block action (e.g., 'branch', 'end').
+     */
     handleBlockSelect = (blockId, type) => {
         switch (type) {
             case 'branch':
-                this.addBranch(blockId)
-                break
+                this.addBranch(blockId);
+                break;
             case 'end':
-                this.addBlock(blockId, 'end')
-                break
+                this.addBlock(blockId, 'end');
+                break;
             case 'default':
             default:
-                this.addBlock(blockId)
-                break
+                this.addBlock(blockId);
+                break;
         }
     }
 
+    /**
+     * Closes any open block panels, resetting their state.
+     */
     handlePanelCollapse = () => {
         this.setState({
             isBlockPanelOpen: false,
             isPropertyPanelOpen: false,
             activeBlock: null
-        })
+        });
     }
 
+    /**
+     * Submits the property panel input. (Currently not implemented)
+     * @param {number} blockId - The ID of the block being edited.
+     * @param {object} value - The new property value to update the block with.
+     */
     handlePropertyPanelSubmit = (blockId, value) => {
-        // TODO
+        // TODO: Implement property panel submit logic
     };
 
+    /**
+     * Rearranges the blocks horizontally centered within the canvas.
+     */
     arrangeBlocks = () => {
         const {blocks} = this.state;
         const {flow} = this.props;
@@ -140,6 +170,11 @@ class FlowBuilder extends Component {
         this.setState({blocks: centeredBlocks}, this.renderConnections);
     };
 
+    /**
+     * Handles mouse down event for initiating dragging of a block or the entire canvas.
+     * @param {MouseEvent} event - The mouse event triggered on mousedown.
+     * @param {number} blockId - The ID of the block being dragged.
+     */
     handleMouseDown = (event, blockId) => {
         const {allowDragging} = this.props;
         const {spaceDown} = this.state;
@@ -165,11 +200,16 @@ class FlowBuilder extends Component {
         }
     };
 
+    /**
+     * Handles mouse move event to update position of blocks or the canvas during dragging.
+     * @param {MouseEvent} event - The mouse event triggered on mousemove.
+     */
     handleMouseMove = (event) => {
         const {dragging, initialClick, initialPositions} = this.state;
         if (dragging) {
             const mouseX = event.clientX;
             const mouseY = event.clientY;
+
             if (dragging === 'canvas') {
                 // Move the entire canvas
                 const dx = mouseX - initialClick.x;
@@ -209,6 +249,9 @@ class FlowBuilder extends Component {
         }
     };
 
+    /**
+     * Resets the dragging state on mouse up event, stopping block or canvas dragging.
+     */
     handleMouseUp = () => {
         this.setState({
             dragging: null,
@@ -217,11 +260,16 @@ class FlowBuilder extends Component {
             activeBlock: null,
         });
     };
+
+    /**
+     * Adds a new branch to the workflow from a specified block, creating a new set of linked blocks.
+     * @param {number} prevBlockId - The ID of the block from which the branch originates.
+     */
     addBranch = (prevBlockId) => {
         const {blocks} = this.state;
 
         const prevBlock = this.getBlock(prevBlockId);
-        if (!prevBlock) return; // Safety check
+        if (!prevBlock) return;
 
         // Define the new branch block
         const branchBlock = {
@@ -250,7 +298,7 @@ class FlowBuilder extends Component {
         const newLinks = [
             {from: branchBlock.id, to: positiveChild.id, type: 'positive'},
             {from: branchBlock.id, to: negativeChild.id, type: 'negative'},
-            {from: prevBlockId, to: branchBlock.id} // Link the previous block to the new branch
+            {from: prevBlockId, to: branchBlock.id}
         ];
 
         this.setState((prevState) => ({
@@ -260,6 +308,11 @@ class FlowBuilder extends Component {
             links: [...prevState.links, ...newLinks],
         }), this.renderConnections);
     };
+
+    /**
+     * Converts a block to a branch type, managing its children blocks.
+     * @param {number} branchId - The ID of the block to convert into a branch block.
+     */
     convertToBranchBlock = (branchId) => {
         const {blocks, links} = this.state;
         const branchBlock = this.getBlock(branchId);
@@ -332,6 +385,11 @@ class FlowBuilder extends Component {
         }), this.arrangeBlocks);
     };
 
+    /**
+     * Handles link click interactions to either create links or store the current active link position.
+     * @param {string} position - The position where the link originates.
+     * @param {number} blockId - The ID of the block where the link interaction occurred.
+     */
     handleLinkClick = (position, blockId) => {
         const {activeLinkPosition} = this.state;
 
@@ -345,8 +403,14 @@ class FlowBuilder extends Component {
         }
     };
 
+    /**
+     * Links two blocks together while ensuring there are no duplicate or invalid links.
+     * @param {object} fromData - Contains block ID and position of the start of the link.
+     * @param {number} toId - The ID of the block to which the link is directed.
+     * @param {string} toPosition - The position on the 'to' block where the link should connect.
+     */
     linkBlocks = (fromData, toId, toPosition) => {
-        const {links, blocks} = this.state
+        const {links, blocks} = this.state;
         const {blockId, position} = fromData;
 
         this.setState((prevState) => {
@@ -425,12 +489,15 @@ class FlowBuilder extends Component {
         }, this.renderConnections);
     };
 
-
-    // Method to add a new block taking reference from a given previous block ID
+    /**
+     * Adds a new block connected to a specified previous block.
+     * @param {number} prevBlockId - The ID of the block to which the new block will be linked.
+     * @param {string} [type='default'] - The type of block to add.
+     */
     addBlock = (prevBlockId, type = 'default') => {
         // Retrieve previous block's position for calculation
         const prevBlock = this.getBlock(prevBlockId);
-        if (!prevBlock) return; // Safety check for existing block
+        if (!prevBlock) return;
 
         const {blocks, links} = this.state;
 
@@ -440,14 +507,14 @@ class FlowBuilder extends Component {
         // Determine new block position relative to the previous block
         const newBlockPosition = {
             x: prevBlock.position.x,
-            y: prevBlock.position.y + scrollY, // Set gap for vertical or adjust for horizontal layouts
+            y: prevBlock.position.y + scrollY,
         };
 
         // Create new block with a unique ID
         const newBlock = {
-            id: blocks.length + 1, // Assumed unique ID generation; use a more robust system if needed
+            id: blocks.length + 1,
             position: newBlockPosition,
-            type: type, // Default block type for now
+            type: type,
             linkedBlocks: [],
         };
 
@@ -463,9 +530,14 @@ class FlowBuilder extends Component {
             activeBlock: null,
             blocks: [...prevState.blocks, newBlock],
             links: [...prevState.links, newLink],
-        }), this.renderConnections); // Optionally, re-draw connection lines
+        }), this.renderConnections);
     };
 
+    /**
+     * Inserts a block between two existing linked blocks.
+     * @param {number} fromId - The ID of the starting block of the existing link.
+     * @param {number} toId - The ID of the ending block of the existing link.
+     */
     addBlockBetween = (fromId, toId) => {
         const fromBlockIndex = this.state.blocks.findIndex(block => block.id === fromId);
         const toBlockIndex = this.state.blocks.findIndex(block => block.id === toId);
@@ -478,7 +550,7 @@ class FlowBuilder extends Component {
 
         const newPosition = {
             x: (fromBlock.position.x + toBlock.position.x) / 2,
-            y: (fromBlock.position.y + toBlock.position.y) / 2 + 120,  // Center y and add margin
+            y: (fromBlock.position.y + toBlock.position.y) / 2 + 120,
         };
 
         const newBlock = {
@@ -514,11 +586,15 @@ class FlowBuilder extends Component {
         }, this.renderConnections);
     };
 
+    /**
+     * Converts a block to an end block, ensuring no descendants remain linked.
+     * @param {number} blockId - The ID of the block to be converted to the end type.
+     */
     convertToEndBlock = (blockId) => {
         const {blocks, links} = this.state;
         const block = this.getBlock(blockId);
 
-        if (block.type === 'end') return; // Already an end block
+        if (block?.type === 'end') return; // Already an end block
 
         // Remove all descendants if any
         const descendants = this.findDescendants(blockId);
@@ -531,8 +607,12 @@ class FlowBuilder extends Component {
             blocks: blocksToKeep.map(b => b.id === blockId ? updatedBlock : b),
             links: linksToKeep,
         }, this.renderConnections);
-    }
+    };
 
+    /**
+     * Reverts an end block back to the default type.
+     * @param {number} blockId - The ID of the end block to be converted.
+     */
     convertEndToDefaultBlock = (blockId) => {
         this.setState((prevState) => ({
             blocks: prevState.blocks.map(block =>
@@ -543,9 +623,12 @@ class FlowBuilder extends Component {
         }), this.renderConnections);
     };
 
+    /**
+     * Renders the connection lines between blocks, handling their SVG paths and optional interaction buttons.
+     */
     renderConnections = () => {
         const {blocks, links} = this.state;
-        const blockWidth = 318; // Use a hard-coded value or retrieve dynamically if needed
+        const blockWidth = 318;
         const blockHeight = 100;
 
         return links.map((link, index) => {
@@ -559,6 +642,7 @@ class FlowBuilder extends Component {
             const toBlockElement = document.getElementById(`block-${toBlock.id}`);
 
             const blockActualHeight = fromBlockElement?.offsetHeight || blockHeight;
+
             let fromX = fromBlock.position.x + blockWidth / 2;
             let fromY = fromBlock.position.y + blockActualHeight;
             let toX = toBlock.position.x + blockWidth / 2;
@@ -700,9 +784,15 @@ class FlowBuilder extends Component {
         );
     };
 
+    /**
+     * Finds and returns all descendant block IDs of a given block recursively.
+     * @param {number} blockId - The ID of the block whose descendants are to be found.
+     * @param {Array} updatedLinks - Optional, allows for passing a specific set of links for traversal.
+     * @returns {Array} - List of descendant block IDs.
+     */
     findDescendants = (blockId, updatedLinks = []) => {
         if (!updatedLinks.length) {
-            updatedLinks = this.state.links
+            updatedLinks = this.state.links;
         }
         const visited = new Set();  // To track visited nodes and prevent cycles
         const collectDescendants = (id) => {
@@ -723,6 +813,10 @@ class FlowBuilder extends Component {
         return collectDescendants(blockId);
     };
 
+    /**
+     * Removes a block and all its descendants from the canvas.
+     * @param {number} blockId - The ID of the block to be removed.
+     */
     removeBlockAndDescendants = (blockId) => {
         const {blocks, links} = this.state;
 
@@ -756,10 +850,10 @@ class FlowBuilder extends Component {
      * @param {number} startBlockId - The ID of the block from where the shift should start.
      * @param {Array} updatedBlocks - The array of updated blocks that need to be shifted.
      * @param {Array} updatedLinks - The array of updated links to find descendants.
-     * @param {number} blockHeight - The assumed height of each block.
+     * @param {number} [blockHeight=100] - The assumed height of each block.
      */
     shiftBlocksDown = (startBlockId, updatedBlocks, updatedLinks, blockHeight = 100) => {
-        const shiftY = blockHeight + 170; // Adjust block separation to prevent overlap.
+        const shiftY = blockHeight + 170;
         const seenBlocks = new Set();
 
         const shiftRecursive = (blockId) => {
@@ -786,6 +880,10 @@ class FlowBuilder extends Component {
         shiftRecursive(startBlockId);
     };
 
+    /**
+     * Renders block-specific action buttons based on conditions like type and descendant presence.
+     * @param {number} blockId - The ID of the block for which actions are to be rendered.
+     */
     renderBlockActions = (blockId) => {
         const {links} = this.state;
         const block = this.getBlock(blockId)
@@ -824,6 +922,11 @@ class FlowBuilder extends Component {
         );
     };
 
+    /**
+     * Removes a specified link between two blocks and checks for any blocks that become disjoint.
+     * @param {number} fromId - The ID of the block where the link starts.
+     * @param {number} toId - The ID of the block where the link ends.
+     */
     removeLink = (fromId, toId) => {
         const {blocks, links} = this.state;
 
@@ -855,10 +958,19 @@ class FlowBuilder extends Component {
         }, this.renderConnections);
     };
 
+    /**
+     * Retrieves a block object from the current state by its ID.
+     * @param {number} id - The ID of the block to be retrieved.
+     * @returns {object|null} - The block object if found, otherwise null.
+     */
     getBlock = (id) => {
         return this.state.blocks.find((block) => block.id === id);
     };
 
+    /**
+     * Renders the main structure of the FlowBuilder component, including the panels, blocks, and connections.
+     * @returns {JSX.Element} - The main component structure rendered as JSX.
+     */
     render() {
         const {canvasHeight, isBlockPanelOpen, isPropertyPanelOpen, activeBlock, spaceDown, dragging} = this.state;
         const cursorStyle = spaceDown
@@ -916,4 +1028,4 @@ class FlowBuilder extends Component {
     }
 }
 
-export default FlowBuilder
+export default FlowBuilder;
