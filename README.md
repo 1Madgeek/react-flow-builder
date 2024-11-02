@@ -27,6 +27,10 @@ import {FlowBuilder} from '@madgeek_in/react-flow-builder';
 <FlowBuilder allowDragging={true} flow={'vertical'}/>
 ```
 
+## Demo
+
+[React Flow Builder Demo](https://react-flow-builder-demo.vercel.app/)
+
 ## Features
 
 - **Manual Link Creation**: Quickly establish connections between blocks by manually selecting link points.

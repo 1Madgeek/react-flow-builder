@@ -1,6 +1,6 @@
 {
   "name": "@madgeek_in/react-flow-builder",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "private": false,
   "dependencies": {
     "classnames": "^2.5.1",
@@ -12,7 +12,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "babel:build": "babel src/components --out-dir dist/components --copy-files && cpx './src/assets/**/*' dist/assets"
+    "babel:build": "babel src/components --out-dir dist/components --copy-files && cpx './src/assets/**/*' dist/assets && babel src/assets/icon --out-dir dist/assets/icon"
   },
   "peerDependencies": {
     "classnames": "^2.5.1",
