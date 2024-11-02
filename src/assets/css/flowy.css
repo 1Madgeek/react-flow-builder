@@ -11,7 +11,7 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-image: url('../assets/image/tile.png');
+    background-image: url('../image/tile.png');
     background-repeat: repeat;
     background-size: 30px 30px;
     background-color: #FBFBFB;
@@ -284,4 +284,17 @@
 .add-button .ti,
 .remove-button .ti {
     font-weight: 700;
+}
+
+.block-between{
+    background: #2fb344;
+}
+
+/** Button  **/
+button svg {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
 }

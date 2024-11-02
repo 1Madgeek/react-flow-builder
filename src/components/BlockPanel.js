@@ -1,20 +1,21 @@
 import React, {Component} from "react";
 import classNames from "classnames";
+import IconSquarePlus from "../assets/icon/IconSquarePlus";
+import IconSiteMap from "../assets/icon/IconSiteMap";
+import IconSquareX from "../assets/icon/IconSquareX";
 
 class BlockPanel extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            collapseBlockPanel: true
-        }
+        this.state = {}
     }
 
     toggleBlockPanelVisibility = (event) => {
-        this.setState(prev => ({collapseBlockPanel: !prev.collapseBlockPanel}))
+        this.props.handler()
     }
 
     render() {
-        const {collapseBlockPanel} = this.state;
+        const {collapseBlockPanel, block, handleBlockSelect} = this.props;
 
         return (
             <div className={classNames("block-panel-wrapper", {"active": !collapseBlockPanel})}>
@@ -34,25 +35,28 @@ class BlockPanel extends Component {
                                 <h3>Building blocks</h3>
                             </div>
                             <div className="block-widget-list">
-                                <div className="block-list-item">
+                                <div className="block-list-item"
+                                     onClick={(event) => handleBlockSelect(block.id, 'default')}>
                                     <div className="icon">
-                                        <i className="ti ti-square-plus"></i>
+                                        <IconSquarePlus/>
                                     </div>
                                     <div className="title-wrapper">
                                         <div className="title">Simple Block</div>
                                     </div>
                                 </div>
-                                <div className="block-list-item">
+                                <div className="block-list-item"
+                                     onClick={(event) => handleBlockSelect(block.id, 'branch')}>
                                     <div className="icon">
-                                        <i className="ti ti-hierarchy"></i>
+                                        <IconSiteMap/>
                                     </div>
                                     <div className="title-wrapper">
                                         <div className="title">If/then branch</div>
                                     </div>
                                 </div>
-                                <div className="block-list-item">
+                                <div className="block-list-item"
+                                     onClick={(event) => handleBlockSelect(block.id, 'end')}>
                                     <div className="icon">
-                                        <i className="ti ti-square-x"></i>
+                                        <IconSquareX/>
                                     </div>
                                     <div className="title-wrapper">
                                         <div className="title">End Block</div>

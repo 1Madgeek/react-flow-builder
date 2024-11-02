@@ -13,7 +13,11 @@ WIP...
 
 ### Installation
 ```bash
+# npm
 npm install @madgeek_in/react-flow-builder
+
+# yarn
+yarn add @madgeek_in/react-flow-builder
 ```
 
 ### Usage

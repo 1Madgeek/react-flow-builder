@@ -1,4 +1,10 @@
 import FlowBuilder from "./dist/components/FlowBuilder";
-import Block from "./dist/components/Block";
+import BlockPanel from "./dist/components/BlockPanel";
 
-export { FlowBuilder, Block };
+import Block from "./dist/components/blocks/Block";
+import DefaultBlock from "./dist/components/blocks/DefaultBlock";
+import BranchBlock from "./dist/components/blocks/BranchBlock";
+import StartBlock from "./dist/components/blocks/StartBlock";
+import EndBlock from "./dist/components/blocks/EndBlock";
+
+export {FlowBuilder, BlockPanel, Block, DefaultBlock, BranchBlock, StartBlock, EndBlock};

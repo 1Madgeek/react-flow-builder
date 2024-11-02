@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import classNames from "classnames";
+import IconLink from "../../assets/icon/IconLink";
 
-class Block extends Component {
+class DefaultBlock extends Component {
     constructor(props) {
         super(props);
         this.state = {}
@@ -51,7 +52,7 @@ class Block extends Component {
                 <div style={{position: 'relative'}}>
                     <div style={this.getLinkStyle('top')} onClick={() => onLinkClick('top')}/>
                     <div style={this.getLinkStyle('right')} onClick={() => onLinkClick('right')}/>
-                    <div style={this.getLinkStyle('bottom')} onClick={() => onLinkClick('bottom')}/>
+                    <div style={this.getLinkStyle('bottom')} onClick={() => onLinkClick('bottom')}><IconLink/></div>
                     <div style={this.getLinkStyle('left')} onClick={() => onLinkClick('left')}/>
                     <div>
                         <div className="block-item-header">
@@ -82,4 +83,4 @@ class Block extends Component {
     }
 }
 
-export default Block
+export default DefaultBlock

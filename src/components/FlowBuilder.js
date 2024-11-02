@@ -1,7 +1,11 @@
 import React, {Component} from "react";
-import Block from "./Block";
-import './flowy.css';
+import DefaultBlock from "./blocks/DefaultBlock";
+import '../assets/css/flowy.css';
 import BlockPanel from "./BlockPanel";
+import IconPlus from "../assets/icon/IconPlus";
+import IconX from "../assets/icon/IconX";
+import Block from "./blocks/Block";
+import IconSquarePlus from "../assets/icon/IconSquarePlus";
 
 class FlowBuilder extends Component {
 
@@ -15,6 +19,9 @@ class FlowBuilder extends Component {
             offset: {x: 0, y: 0},
             activeBlock: null,
             activeLinkPosition: null,
+
+            collapseBlockPanel: true,
+            blockPanelBlock: null
         };
     }
 
@@ -38,7 +45,34 @@ class FlowBuilder extends Component {
         }, this.arrangeBlocks);
     }
 
+    selectBlock = (blockId) => {
+        const block = this.getBlock(blockId)
+        this.setState({
+            collapseBlockPanel: false,
+            blockPanelBlock: block
+        })
+    }
 
+    handleBlockSelect = (blockId, type) => {
+        switch (type) {
+            case 'branch':
+                this.addBranch(blockId)
+                break
+            case 'end':
+                break
+            case 'default':
+            default:
+                this.addBlock(blockId)
+                break
+        }
+    }
+
+    handleBlockPanelCollapse = () => {
+        this.setState({
+            collapseBlockPanel: true,
+            blockPanelBlock: null
+        })
+    }
     arrangeBlocks = () => {
         const {blocks} = this.state;
         const {flow} = this.props;
@@ -187,6 +221,8 @@ class FlowBuilder extends Component {
         ];
 
         this.setState((prevState) => ({
+            collapseBlockPanel: true,
+            blockPanelBlock: null,
             blocks: [...prevState.blocks, branchBlock, positiveChild, negativeChild],
             links: [...prevState.links, ...newLinks],
         }), this.renderConnections);
@@ -311,10 +347,6 @@ class FlowBuilder extends Component {
         }, this.renderConnections);
     };
 
-    addBlockAfterStart = () => {
-        const startBlock = this.getBlock(this.state.blocks[0].id);
-        this.addBlock(startBlock.id);
-    }
 
     // Method to add a new block taking reference from a given previous block ID
     addBlock = (prevBlockId) => {
@@ -346,6 +378,8 @@ class FlowBuilder extends Component {
 
         // Update state with new block and link
         this.setState((prevState) => ({
+            collapseBlockPanel: true,
+            blockPanelBlock: null,
             blocks: [...prevState.blocks, newBlock],
             links: [...prevState.links, newLink],
         }), this.renderConnections); // Optionally, re-draw connection lines
@@ -363,7 +397,7 @@ class FlowBuilder extends Component {
         const toBlock = this.state.blocks[toBlockIndex];
         const newPosition = {
             x: (fromBlock.position.x + toBlock.position.x) / 2,
-            y: (fromBlock.position.y + toBlock.position.y) / 2,
+            y: (fromBlock.position.y + toBlock.position.y) / 2 + 150,
         };
 
         const newBlock = {
@@ -484,7 +518,7 @@ class FlowBuilder extends Component {
                     {!isBranchPath && (
                         <>
                             <button
-                                className="add-button"
+                                className="add-button block-between"
                                 onClick={() => this.addBlockBetween(link.from, link.to)}
                                 style={{
                                     position: 'absolute',
@@ -493,7 +527,7 @@ class FlowBuilder extends Component {
                                     zIndex: 2,
                                     pointerEvents: 'all',
                                 }}>
-                                <i className="ti ti-plus"></i>
+                                <IconSquarePlus width={20} height={20}/>
                             </button>
                             <button className="remove-button" onClick={() => this.removeLink(link.from, link.to)}
                                     style={{
@@ -503,7 +537,7 @@ class FlowBuilder extends Component {
                                         zIndex: 2,
                                         pointerEvents: 'all',
                                     }}>
-                                <i className="ti ti-x"></i>
+                                <IconX width={20} height={20}/>
                             </button>
                         </>
                     )}
@@ -513,7 +547,6 @@ class FlowBuilder extends Component {
             blocks.map((block) => {
                 // Last blocks in their chains need a "+" button
                 const isLastBlock = !links.some(link => link.from === block.id);
-                const isStartBlock = block.type === 'start';
 
                 if (!isLastBlock) return null;
 
@@ -524,7 +557,7 @@ class FlowBuilder extends Component {
                     <button
                         key={`last-${block.id}`}
                         className="add-button"
-                        onClick={() => isStartBlock ? this.addBlockAfterStart() : this.addBlock(block.id)}
+                        onClick={() => this.selectBlock(block.id)}
                         style={{
                             position: 'absolute',
                             left: x - 15, // Center-align button
@@ -533,7 +566,7 @@ class FlowBuilder extends Component {
                             pointerEvents: 'all',
                         }}
                     >
-                        <i className="ti ti-plus"></i>
+                        <IconPlus width={20} height={20}/>
                     </button>
                 );
             })
@@ -652,11 +685,14 @@ class FlowBuilder extends Component {
     };
 
     render() {
-        const {canvasHeight} = this.state;
+        const {canvasHeight, collapseBlockPanel, blockPanelBlock} = this.state;
 
         return (
             <div className="canvas-container">
-                <BlockPanel/>
+                <BlockPanel collapseBlockPanel={collapseBlockPanel}
+                            block={blockPanelBlock}
+                            handler={this.handleBlockPanelCollapse}
+                            handleBlockSelect={this.handleBlockSelect}/>
                 <div className="canvas"
                      style={{
                          // height: `${canvasHeight}px`,
