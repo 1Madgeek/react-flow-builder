@@ -338,37 +338,50 @@ class FlowBuilder extends Component {
     };
 
     linkBlocks = (fromData, toId, toPosition) => {
-        const {blockId, position} = fromData;
+        const { blockId, position } = fromData; // blockId here is the 'from' block
+
         this.setState((prevState) => {
+            const fromBlock = this.getBlock(blockId);
+            const toBlock = this.getBlock(toId);
+
+            if (fromBlock && toBlock) {
+                // Get the parent blocks of fromBlock and toBlock
+                const fromParent = this.state.links.find(link => link.to === blockId)?.from;
+                const toParent = this.state.links.find(link => link.to === toId)?.from;
+
+                const fromParentBlock = this.getBlock(fromParent);
+                const toParentBlock = this.getBlock(toParent);
+
+                // Prevent linking if both are children of the same parent branch block
+                if (fromParent === toParent && fromParentBlock?.type === 'branch') {
+                    alert('Cannot link immediate children of the same branch.');
+                    return null;
+                }
+            }
+
             const updatedBlocks = prevState.blocks.map((block) => {
                 if (block.id === blockId) {
-                    const existingLinkIndex = block.linkedBlocks.findIndex(
-                        (link) => link.id === toId
-                    );
-
+                    const existingLinkIndex = block.linkedBlocks.findIndex(link => link.id === toId);
                     if (existingLinkIndex !== -1) {
                         const updatedLinkedBlocks = [...block.linkedBlocks];
-                        updatedLinkedBlocks[existingLinkIndex] = {
-                            id: toId,
-                            fromPosition: position,
-                            toPosition,
-                        };
-                        return {...block, linkedBlocks: updatedLinkedBlocks};
+                        updatedLinkedBlocks[existingLinkIndex] = { id: toId, fromPosition: position, toPosition };
+                        return { ...block, linkedBlocks: updatedLinkedBlocks };
                     } else {
                         return {
                             ...block,
-                            linkedBlocks: [
-                                ...block.linkedBlocks,
-                                {id: toId, fromPosition: position, toPosition},
-                            ],
+                            linkedBlocks: [...block.linkedBlocks, { id: toId, fromPosition: position, toPosition }]
                         };
                     }
                 }
                 return block;
             });
 
-            const newLink = {from: blockId, to: toId, fromPosition: position, toPosition};
-            return {blocks: updatedBlocks, links: [...prevState.links, newLink]};
+            const newLink = { from: blockId, to: toId, fromPosition: position, toPosition };
+
+            return {
+                blocks: updatedBlocks,
+                links: [...prevState.links, newLink],
+            };
         }, this.renderConnections);
     };
 
@@ -720,33 +733,29 @@ class FlowBuilder extends Component {
     };
 
     removeLink = (fromId, toId) => {
-        const {blocks, links} = this.state;
+        const updatedLinks = this.state.links.filter(link =>
+            !(link.from === fromId && link.to === toId)
+        );
 
-        // Remove the specific link in question
-        const updatedLinks = links.filter(link => !(link.from === fromId && link.to === toId));
+        const toBlock = this.getBlock(toId);
+        const isImmediateBranchChild = this.state.links.some(link =>
+            link.to === toId && this.getBlock(link.from)?.type === 'branch'
+        );
 
-        // Function to recursively find all descendants of a given block
-        const findDescendants = (blockId) => {
-            let descendants = [];
-            updatedLinks.forEach(link => {
-                if (link.from === blockId) {
-                    descendants.push(link.to);
-                    descendants = descendants.concat(findDescendants(link.to));
-                }
-            });
-            return descendants;
-        };
+        if (isImmediateBranchChild) {
+            // Do not remove blocks if they are immediate branch children
+            this.setState({
+                links: updatedLinks,
+            }, this.renderConnections);
+            return;
+        }
 
-        // Find all descendants of the block that is potentially disjointed
-        const blocksToRemove = [toId, ...findDescendants(toId)];
-
-        // Now filter out blocks to remove and keep only the relevant links
-        const updatedBlocks = blocks.filter(block => !blocksToRemove.includes(block.id));
-        const newLinks = updatedLinks.filter(link => !blocksToRemove.includes(link.to));
+        // If not an immediate branch child, remove the disjointed block and its descendants
+        const blocksToRemove = [toId, ...this.findDescendants(toId)];
 
         this.setState({
-            blocks: updatedBlocks,
-            links: newLinks,
+            blocks: this.state.blocks.filter(block => !blocksToRemove.includes(block.id)),
+            links: updatedLinks,
         }, this.renderConnections);
     };
 
