@@ -25,13 +25,13 @@ class StartBlock extends Component {
         const isEnd = block.type === 'end';
 
         return (
-            <div
-                onMouseDown={onMouseDown}
-                className={classNames("block-item", {'active': isActive, 'branch': isBranch})}
-                style={{
-                    left: block.position?.x,
-                    top: block.position?.y,
-                }}
+            <div id={`block-${block.id}`}
+                 onMouseDown={onMouseDown}
+                 className={classNames("block-item", {'active': isActive, 'branch': isBranch})}
+                 style={{
+                     left: block.position?.x,
+                     top: block.position?.y,
+                 }}
             >
                 <div style={{position: 'relative'}}>
                     <div>

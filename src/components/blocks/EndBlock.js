@@ -40,7 +40,7 @@ class EndBlock extends Component {
         const isEnd = block.type === 'end';
 
         return (
-            <div
+            <div id={`block-${block.id}`}
                 onMouseDown={onMouseDown}
                 className={classNames("block-item", {'active': isActive, 'branch': isBranch})}
                 style={{

@@ -15,11 +15,11 @@ class DefaultBlock extends Component {
             width: '10px',
             height: '10px',
             backgroundColor: 'transparent',
-            border: isActive ? '2px solid green' : '2px solid transparent',
+            color: isActive ? '#2196f3' : 'black',
             cursor: 'pointer',
             ...(position === 'top' && {top: -5, left: '50%', transform: 'translateX(-50%)'}),
             ...(position === 'right' && {top: '50%', right: -5, transform: 'translateY(-50%)'}),
-            ...(position === 'bottom' && {bottom: -5, left: '50%', transform: 'translateX(-50%)'}),
+            ...(position === 'bottom' && {bottom: 0, left: '48%', transform: 'translateX(-50%)'}),
             ...(position === 'left' && {top: '50%', left: -5, transform: 'translateY(-50%)'}),
         };
     }
@@ -41,19 +41,16 @@ class DefaultBlock extends Component {
         const isEnd = block.type === 'end';
 
         return (
-            <div
-                onMouseDown={onMouseDown}
-                className={classNames("block-item", {'active': isActive, 'branch': isBranch})}
-                style={{
-                    left: block.position?.x,
-                    top: block.position?.y,
-                }}
+            <div id={`block-${block.id}`}
+                 onMouseDown={onMouseDown}
+                 className={classNames("block-item", {'active': isActive, 'branch': isBranch})}
+                 style={{
+                     left: block.position?.x,
+                     top: block.position?.y,
+                 }}
             >
                 <div style={{position: 'relative'}}>
-                    <div style={this.getLinkStyle('top')} onClick={() => onLinkClick('top')}/>
-                    <div style={this.getLinkStyle('right')} onClick={() => onLinkClick('right')}/>
                     <div style={this.getLinkStyle('bottom')} onClick={() => onLinkClick('bottom')}><IconLink/></div>
-                    <div style={this.getLinkStyle('left')} onClick={() => onLinkClick('left')}/>
                     <div>
                         <div className="block-item-header">
                             <h4>Block {this.props.id}</h4>
