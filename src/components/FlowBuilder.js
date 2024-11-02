@@ -491,7 +491,7 @@ class FlowBuilder extends Component {
     };
 
     renderConnections = () => {
-        const { blocks, links } = this.state;
+        const {blocks, links} = this.state;
         const blockWidth = 318; // Use a hard-coded value or retrieve dynamically if needed
 
         return links.map((link, index) => {
@@ -503,18 +503,21 @@ class FlowBuilder extends Component {
             // Dynamically find block height
             const fromBlockElement = document.getElementById(`block-${fromBlock.id}`);
             const toBlockElement = document.getElementById(`block-${toBlock.id}`);
+            const blockHeight = 100;
 
-            const blockHeight = fromBlockElement?.offsetHeight || 100; // Default to 100 if undefined
+            const blockActualHeight = fromBlockElement?.offsetHeight || blockHeight;
+            const fromX = fromBlock.position.x + blockWidth / 2;
+            const fromY = fromBlock.position.y + blockActualHeight;
+            const toX = toBlock.position.x + blockWidth / 2;
+            const toY = toBlock.position.y;
 
-            const x1 = fromBlock.position.x + blockWidth / 2;
-            const y1 = fromBlock.position.y + blockHeight;
-            const x2 = toBlock.position.x + blockWidth / 2;
-            const y2 = toBlock.position.y;
+            const midX = (fromX + toX) / 2;
+            const midY = (fromY + toY) / 2;
 
             const isBranchPath = fromBlock.type === 'branch';
             const path = isBranchPath
-                ? `M${x1} ${y1} L${x1} ${(y1 + 40)} L${x2} ${(y1 + 40)} L${x2} ${y2}`
-                : `M${x1},${y1} C${x1},${y1 + 50} ${x2},${y2 - 50} ${x2},${y2}`;
+                ? `M${fromX} ${fromY} L${fromX} ${(fromY + 40)} L${toX} ${(fromY + 40)} L${toX} ${toY}`
+                : `M${fromX},${fromY} C${fromX},${fromY + 50} ${toX},${toY - 50} ${toX},${toY}`;
 
             return (
                 <div
@@ -523,8 +526,8 @@ class FlowBuilder extends Component {
                         position: 'absolute',
                         left: 0,
                         top: 0,
-                        width: Math.abs(x2 - x1),
-                        height: Math.abs(y2 - y1) + 50,
+                        width: Math.abs(toX - fromX),
+                        height: Math.abs(toY - fromY) + 50,
                         pointerEvents: 'none',
                     }}
                 >
@@ -535,9 +538,9 @@ class FlowBuilder extends Component {
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                     >
-                        <path d={path} stroke="#C5CCD0" strokeWidth="2" />
+                        <path d={path} stroke="#C5CCD0" strokeWidth="2"/>
                         <path
-                            d={`M${x2 - 5},${y2 - 5} L${x2},${y2} L${x2 + 5},${y2 - 5}`}
+                            d={`M${toX - 5},${toY - 5} L${toX},${toY} L${toX + 5},${toY - 5}`}
                             fill="#C5CCD0"
                         />
                     </svg>
@@ -548,26 +551,26 @@ class FlowBuilder extends Component {
                                 onClick={() => this.addBlockBetween(link.from, link.to)}
                                 style={{
                                     position: 'absolute',
-                                    left: x1 - 15,
-                                    top: (y1 + y2) / 2 - 25,
+                                    left: midX - 15,
+                                    top: midY - 25,
                                     zIndex: 2,
                                     pointerEvents: 'all',
                                 }}
                             >
-                                <IconSquarePlus width={20} height={20} />
+                                <IconSquarePlus width={20} height={20}/>
                             </button>
                             <button
                                 className="remove-button"
                                 onClick={() => this.removeLink(link.from, link.to)}
                                 style={{
                                     position: 'absolute',
-                                    left: x1 - 15,
-                                    top: (y1 + y2) / 2 + 15,
+                                    left: midX - 15,
+                                    top: midY + 15,
                                     zIndex: 2,
                                     pointerEvents: 'all',
                                 }}
                             >
-                                <IconX width={20} height={20} />
+                                <IconX width={20} height={20}/>
                             </button>
                         </>
                     )}
@@ -597,7 +600,7 @@ class FlowBuilder extends Component {
                             pointerEvents: 'all',
                         }}
                     >
-                        <IconPlus width={20} height={20} />
+                        <IconPlus width={20} height={20}/>
                     </button>
                 );
             })
