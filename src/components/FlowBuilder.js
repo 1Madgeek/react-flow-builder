@@ -19,6 +19,7 @@ class FlowBuilder extends Component {
             offset: {x: 0, y: 0},
             activeBlock: null,
             activeLinkPosition: null,
+            spaceDown: false,
 
             collapseBlockPanel: true,
             blockPanelBlock: null
@@ -27,6 +28,16 @@ class FlowBuilder extends Component {
 
     componentDidMount() {
         this.initializeCanvas()
+
+        //  Event listeners for key down and key up to detect space bar press
+        window.addEventListener('keydown', this.handleKeyDown);
+        window.addEventListener('keyup', this.handleKeyUp);
+    }
+
+    componentWillUnmount() {
+        // Clean up event listeners
+        window.removeEventListener('keydown', this.handleKeyDown);
+        window.removeEventListener('keyup', this.handleKeyUp);
     }
 
     initializeCanvas = () => {
@@ -45,6 +56,21 @@ class FlowBuilder extends Component {
         }, this.arrangeBlocks);
     }
 
+
+    handleKeyDown = (e) => {
+        // Check if the space bar is pressed
+        if (e.code === 'Space') {
+            e.preventDefault(); // Prevent default scrolling behavior
+            this.setState({spaceDown: true});
+        }
+    };
+
+    handleKeyUp = (e) => {
+        // Reset the space bar state when key is released
+        if (e.code === 'Space') {
+            this.setState({spaceDown: false});
+        }
+    };
     selectBlock = (blockId) => {
         const block = this.getBlock(blockId)
         this.setState({
@@ -107,9 +133,17 @@ class FlowBuilder extends Component {
     };
 
     handleMouseDown = (event, blockId) => {
-        const {allowDragging} = this.props; // Access the prop
+        const {allowDragging} = this.props;
+        const {spaceDown} = this.state;
 
-        if (allowDragging) {
+        if (spaceDown) {
+            // Initiate canvas dragging
+            this.setState({
+                dragging: 'canvas',
+                initialClick: {x: event.clientX, y: event.clientY},
+                initialPositions: this.state.blocks.map((block) => ({...block})),
+            });
+        } else if (allowDragging) {
             // Handle individual block dragging
             const mouseX = event.clientX;
             const mouseY = event.clientY;
@@ -120,57 +154,49 @@ class FlowBuilder extends Component {
                     y: mouseY - this.getBlock(blockId).position.y,
                 },
             });
-        } else {
-            // Handle dragging the entire canvas
-            this.setState({
-                dragging: 'canvas',
-                initialClick: {
-                    x: event.clientX,
-                    y: event.clientY,
-                },
-                initialPositions: this.state.blocks.map(block => ({
-                    ...block // Copy all properties of each block
-                })),
-            });
         }
     };
-    handleMouseMove = (event) => {
-        const {dragging} = this.state;
 
+    handleMouseMove = (event) => {
+        const {dragging, initialClick, initialPositions} = this.state;
         if (dragging) {
             const mouseX = event.clientX;
             const mouseY = event.clientY;
-
             if (dragging === 'canvas') {
                 // Move the entire canvas
-                const dx = mouseX - this.state.initialClick.x;
-                const dy = mouseY - this.state.initialClick.y;
-
-                this.setState(prevState => ({
-                    blocks: prevState.initialPositions.map((block, index) => ({
-                        ...block,
-                        position: {
-                            x: block.position.x + dx,
-                            y: block.position.y + dy,
-                        },
-                    })),
-                }), this.renderConnections);
+                const dx = mouseX - initialClick.x;
+                const dy = mouseY - initialClick.y;
+                this.setState(
+                    (prevState) => ({
+                        blocks: initialPositions.map((block) => ({
+                            ...block,
+                            position: {
+                                x: block.position.x + dx,
+                                y: block.position.y + dy,
+                            },
+                        })),
+                    }),
+                    this.renderConnections
+                );
             } else {
                 // Move a single block
-                this.setState(prevState => ({
-                    blocks: prevState.blocks.map(block => {
-                        if (block.id === dragging) {
-                            return {
-                                ...block,
-                                position: {
-                                    x: mouseX - prevState.offset.x,
-                                    y: mouseY - prevState.offset.y,
-                                },
-                            };
-                        }
-                        return block;
+                this.setState(
+                    (prevState) => ({
+                        blocks: prevState.blocks.map((block) => {
+                            if (block.id === dragging) {
+                                return {
+                                    ...block,
+                                    position: {
+                                        x: mouseX - prevState.offset.x,
+                                        y: mouseY - prevState.offset.y,
+                                    },
+                                };
+                            }
+                            return block;
+                        }),
                     }),
-                }), this.renderConnections);
+                    this.renderConnections
+                );
             }
         }
     };
@@ -180,10 +206,9 @@ class FlowBuilder extends Component {
             dragging: null,
             initialClick: null,
             initialPositions: null,
-            activeBlock: null
+            activeBlock: null,
         });
     };
-
     addBranch = (prevBlockId) => {
         const {blocks} = this.state;
 
@@ -721,23 +746,31 @@ class FlowBuilder extends Component {
     };
 
     render() {
-        const {canvasHeight, collapseBlockPanel, blockPanelBlock} = this.state;
+        const {canvasHeight, collapseBlockPanel, blockPanelBlock, spaceDown, dragging} = this.state;
+        const cursorStyle = spaceDown
+            ? dragging === 'canvas'
+                ? 'grabbing'
+                : 'grab'
+            : 'default'; // Default cursor when not interacting with the canvas
 
         return (
             <div className="canvas-container">
-                <BlockPanel collapseBlockPanel={collapseBlockPanel}
-                            block={blockPanelBlock}
-                            handler={this.handleBlockPanelCollapse}
-                            handleBlockSelect={this.handleBlockSelect}/>
-                <div className="canvas"
-                     style={{
-                         // height: `${canvasHeight}px`,
-                     }}
-                     onMouseUp={this.handleMouseUp}
-                     onMouseMove={this.handleMouseMove}>
-                    <div className="connections">
-                        {this.renderConnections()}
-                    </div>
+                <BlockPanel
+                    collapseBlockPanel={collapseBlockPanel}
+                    block={blockPanelBlock}
+                    handler={this.handleBlockPanelCollapse}
+                    handleBlockSelect={this.handleBlockSelect}
+                />
+                <div
+                    className="canvas"
+                    style={{
+                        cursor: cursorStyle,
+                        // height: `${canvasHeight}px`,
+                    }}
+                    onMouseUp={this.handleMouseUp}
+                    onMouseMove={this.handleMouseMove}
+                >
+                    <div className="connections">{this.renderConnections()}</div>
                     {this.state.blocks.map((block) => (
                         <Block
                             key={block.id}
