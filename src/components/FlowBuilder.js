@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import Block from "./Block";
 import './flowy.css';
-import '../assets/library/tabler-icons/tabler-icons.css'
 import BlockPanel from "./BlockPanel";
 
 class FlowBuilder extends Component {

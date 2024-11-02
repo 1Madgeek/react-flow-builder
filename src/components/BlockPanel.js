@@ -17,44 +17,46 @@ class BlockPanel extends Component {
         const {collapseBlockPanel} = this.state;
 
         return (
-            <div className={classNames("block-panel", {
-                "collapse": collapseBlockPanel
-            })}>
-                <div id="close-block-panel" onClick={(event) => this.toggleBlockPanelVisibility(event)}>
-                    <img src="/image/closeleft.svg" alt={'Collapse'}/>
-                </div>
-                <div className="block-panel-header">
-                    <h2>Blocks</h2>
-                </div>
+            <div className={classNames("block-panel-wrapper", {"active": !collapseBlockPanel})}>
+                <div className={classNames("block-panel", {
+                    "collapse": collapseBlockPanel
+                })}>
+                    <div id="close-block-panel" onClick={(event) => this.toggleBlockPanelVisibility(event)}>
+                        <img src="/image/closeleft.svg" alt={'Collapse'}/>
+                    </div>
+                    <div className="block-panel-header">
+                        <h2>Blocks</h2>
+                    </div>
 
-                <div className="block-panel-body">
-                    <div className="block-widget-card">
-                        <div className="block-widget-card-header">
-                            <h3>Global</h3>
-                        </div>
-                        <div className="block-widget-card-body">
-                            <div className="block-element">
-                                <div className="icon">
-                                    <i className="ti ti-layout"></i>
-                                </div>
-                                <div className="title-wrapper">
-                                    <div className="title">Block</div>
-                                </div>
+                    <div className="block-panel-body">
+                        <div className="block-widget-card">
+                            <div className="block-widget-card-header">
+                                <h3>Building blocks</h3>
                             </div>
-                            <div className="block-element">
-                                <div className="icon">
-                                    <i className="ti ti-layout"></i>
+                            <div className="block-widget-list">
+                                <div className="block-list-item">
+                                    <div className="icon">
+                                        <i className="ti ti-square-plus"></i>
+                                    </div>
+                                    <div className="title-wrapper">
+                                        <div className="title">Simple Block</div>
+                                    </div>
                                 </div>
-                                <div className="title-wrapper">
-                                    <div className="title">Branch</div>
+                                <div className="block-list-item">
+                                    <div className="icon">
+                                        <i className="ti ti-hierarchy"></i>
+                                    </div>
+                                    <div className="title-wrapper">
+                                        <div className="title">If/then branch</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="block-element">
-                                <div className="icon">
-                                    <i className="ti ti-layout"></i>
-                                </div>
-                                <div className="title-wrapper">
-                                    <div className="title">End Block</div>
+                                <div className="block-list-item">
+                                    <div className="icon">
+                                        <i className="ti ti-square-x"></i>
+                                    </div>
+                                    <div className="title-wrapper">
+                                        <div className="title">End Block</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -1,3 +1,4 @@
-import FlowBuilder from "./src/components/FlowBuilder";
+import FlowBuilder from "./dist/components/FlowBuilder";
+import Block from "./dist/components/Block";
 
-export default FlowBuilder
+export { FlowBuilder, Block };

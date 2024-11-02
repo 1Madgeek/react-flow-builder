@@ -9,6 +9,20 @@ WIP...
 
 ![Work In Progress](screenshots/screenshot-3.png)
 
+## Getting Started
+
+### Installation
+```bash
+npm install @madgeek_in/react-flow-builder
+```
+
+### Usage
+```javascript
+import {FlowBuilder} from '@madgeek_in/react-flow-builder';
+
+<FlowBuilder allowDragging={true} flow={'vertical'}/>
+```
+
 ## Features
 
 - **Manual Link Creation**: Quickly establish connections between blocks by manually selecting link points.
