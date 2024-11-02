@@ -750,30 +750,37 @@ class FlowBuilder extends Component {
     };
 
     removeLink = (fromId, toId) => {
-        const updatedLinks = this.state.links.filter(link =>
-            !(link.from === fromId && link.to === toId)
-        );
+        const {blocks, links} = this.state;
 
-        const toBlock = this.getBlock(toId);
-        const isImmediateBranchChild = this.state.links.some(link =>
-            link.to === toId && this.getBlock(link.from)?.type === 'branch'
-        );
+        // Remove the specific link in question
+        const updatedLinks = links.filter(link => !(link.from === fromId && link.to === toId));
+
+
+        // Identify nodes to potentially remove if disjointed
+        const blocksToRemove = [toId, ...this.findDescendants(toId, updatedLinks)];
+
+        // Determine if toId is an immediate child of a branch
+        const immediateBranchChildren = links.filter(link =>
+            this.getBlock(link.from)?.type === 'branch'
+        ).map(link => link.to);
+
+        const isImmediateBranchChild = immediateBranchChildren.includes(toId);
 
         if (isImmediateBranchChild) {
-            // Do not remove blocks if they are immediate branch children
+            // Remove only the link if an immediate branch child
+            this.setState({links: updatedLinks}, this.renderConnections);
+        } else {
+            // Remove both affected blocks and links if not immediate branch children
+            const filteredBlocks = blocks.filter(block => !blocksToRemove.includes(block.id));
+            const filteredLinks = updatedLinks.filter(link =>
+                !blocksToRemove.includes(link.from) && !blocksToRemove.includes(link.to)
+            );
+
             this.setState({
-                links: updatedLinks,
+                blocks: filteredBlocks,
+                links: filteredLinks,
             }, this.renderConnections);
-            return;
         }
-
-        // If not an immediate branch child, remove the disjointed block and its descendants
-        const blocksToRemove = [toId, ...this.findDescendants(toId)];
-
-        this.setState({
-            blocks: this.state.blocks.filter(block => !blocksToRemove.includes(block.id)),
-            links: updatedLinks,
-        }, this.renderConnections);
     };
 
     getBlock = (id) => {
