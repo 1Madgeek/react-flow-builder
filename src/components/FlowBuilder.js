@@ -346,58 +346,81 @@ class FlowBuilder extends Component {
     };
 
     linkBlocks = (fromData, toId, toPosition) => {
-        const {blockId, position} = fromData; // blockId refers to the 'from' block's ID
+        const {links, blocks} = this.state
+        const {blockId, position} = fromData;
 
         this.setState((prevState) => {
             const fromBlock = this.getBlock(blockId);
             const toBlock = this.getBlock(toId);
 
-            if (fromBlock && toBlock) {
-                const toBlockParentLink = prevState.links.find(link => link.to === blockId);
-                const toBlockParentId = toBlockParentLink?.from;
-                const toBlockParentBlock = this.getBlock(toBlockParentId);
-
-                // Restrict linking back to the parent branch block
-                if (toBlockParentBlock?.type === 'branch' && toBlockParentId === toId) {
-                    alert('Cannot link immediate child to the parent branch block.');
-                    return prevState;
-                }
-
-                // Prevent linking if both are children of the same parent branch block
-                const fromParent = prevState.links.find(link => link.to === blockId)?.from;
-                const toParent = prevState.links.find(link => link.to === toId)?.from;
-                const fromParentBlock = this.getBlock(fromParent);
-                const toParentBlock = this.getBlock(toParent);
-
-                // Prevent linking if both are children of the same parent branch block
-                if (fromParent === toParent && fromParentBlock?.type === 'branch') {
-                    alert('Cannot link immediate children of the same branch.');
-                    return prevState;
-                }
+            if (!fromBlock || !toBlock) {
+                alert('Invalid blocks specified for linking.');
+                return prevState;
             }
 
-            const updatedBlocks = prevState.blocks.map((block) => {
+            // Ensure no duplicate links between the same two blocks
+            const linkExists = links.some(link =>
+                (link.from === blockId && link.to === toId) ||
+                (link.to === blockId && link.from === toId)
+            );
+            if (linkExists) {
+                alert('A link between these two blocks already exists.');
+                return prevState;
+            }
+
+            // Prevent linking immediate children back to their branch parent
+            const toBlockParentLink = links.find(link => link.to === blockId);
+            const toBlockParentId = toBlockParentLink?.from;
+            const toBlockParentBlock = this.getBlock(toBlockParentId);
+
+            if (toBlockParentBlock?.type === 'branch' && toBlockParentId === toId) {
+                alert('Cannot link immediate child to the parent branch block.');
+                return prevState;
+            }
+
+            // Prevent linking if both are children of the same parent branch block
+            const fromParent = links.find(link => link.to === blockId)?.from;
+            const toParent = links.find(link => link.to === toId)?.from;
+            const fromParentBlock = this.getBlock(fromParent);
+            const toParentBlock = this.getBlock(toParent);
+
+            if (fromParent === toParent && fromParentBlock?.type === 'branch') {
+                alert('Cannot link immediate children of the same branch.');
+                return prevState;
+            }
+
+            // Check for any circular paths
+            // const isCircularLink = (startId, targetId, visited = new Set()) => {
+            //     if (visited.has(startId)) return false;
+            //     visited.add(startId);
+            //
+            //     return prevState.links.some(link =>
+            //         link.from === startId && (link.to === targetId || isCircularLink(link.to, targetId, visited))
+            //     );
+            // };
+            //
+            // if (isCircularLink(toId, blockId)) {
+            //     alert('Cannot create circular links.');
+            //     return prevState;
+            // }
+
+            // Update block links
+            const updatedBlocks = blocks.map(block => {
                 if (block.id === blockId) {
-                    const existingLinkIndex = block.linkedBlocks.findIndex(link => link.id === toId);
-                    if (existingLinkIndex !== -1) {
-                        const updatedLinkedBlocks = [...block.linkedBlocks];
-                        updatedLinkedBlocks[existingLinkIndex] = {id: toId, fromPosition: position, toPosition};
-                        return {...block, linkedBlocks: updatedLinkedBlocks};
-                    } else {
-                        return {
-                            ...block,
-                            linkedBlocks: [...block.linkedBlocks, {id: toId, fromPosition: position, toPosition}]
-                        };
-                    }
+                    return {
+                        ...block,
+                        linkedBlocks: [...block.linkedBlocks, {id: toId, fromPosition: position, toPosition}],
+                    };
                 }
                 return block;
             });
 
+            // Add the new link
             const newLink = {from: blockId, to: toId, fromPosition: position, toPosition};
 
             return {
                 blocks: updatedBlocks,
-                links: [...prevState.links, newLink],
+                links: [...links, newLink],
             };
         }, this.renderConnections);
     };
@@ -541,7 +564,7 @@ class FlowBuilder extends Component {
             let toX = toBlock.position.x + blockWidth / 2;
             let toY = toBlock.position.y;
 
-            const { fromPosition, toPosition } = link;
+            const {fromPosition, toPosition} = link;
             // Calculate specific from/to positions if specified
             switch (fromPosition) {
                 case 'top':
