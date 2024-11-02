@@ -1,5 +1,5 @@
 :root {
-    --block-panel-width: 300px;
+    --panel-width: 300px;
     --block-item-width: 318px;
 }
 
@@ -19,33 +19,37 @@
 }
 
 /** Block Panel  **/
-.block-panel-wrapper::after {
-    display: none;
+.panel-wrapper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 3;
+    left: 0;
+}
+
+.panel-wrapper::before {
     content: "";
     position: absolute;
-    background: #0c0d0e;
-    opacity: 0.2;
+    background: #000000;
+    opacity: 0.25;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
 }
-
-.block-panel-wrapper.active {
-    display: block;
-}
-
-.block-panel {
-    width: var(--block-panel-width);
+.panel {
+    position: relative;
+    width: var(--panel-width);
     background-color: #FFF;
     border: 1px solid #E8E8EF;
     box-sizing: border-box;
     height: 100%;
-    z-index: 2;
+    z-index: 5;
     transition: all .25s cubic-bezier(.05, .03, .35, 1);
 }
 
-.block-panel-header {
+.panel-header {
     font-weight: 700;
     background-color: #fff;
     color: #0c0d0e;
@@ -57,30 +61,30 @@
     padding: 0 10px;
 }
 
-.block-panel-body {
+.panel-body {
     padding: 0 10px;
 }
 
-.block-panel-header h2 {
+.panel-header h2 {
     text-align: left;
     font-size: 15px;
     font-weight: 700;
     margin: 0;
 }
 
-.block-panel.collapse {
+.panel.collapse {
     width: 0;
 }
 
-.block-panel.collapse .block-panel-header,
-.block-panel.collapse .block-panel-body {
+.panel.collapse .panel-header,
+.panel.collapse .panel-body {
     display: none;
 }
 
-#close-block-panel {
+#close-panel {
     position: absolute;
     top: 0;
-    margin-left: calc(var(--block-panel-width) - 3px);
+    margin-left: calc(var(--panel-width) - 3px);
     background-color: #FFF;
     border-radius: 0 5px 5px 0;
     border-bottom: 1px solid #E8E8EF;
@@ -93,15 +97,15 @@
     transition: all .25s cubic-bezier(.05, .03, .35, 1);
 }
 
-#close-block-panel img {
+#close-panel img {
     margin-top: 8px;
 }
 
-.block-panel.collapse #close-block-panel {
+.panel.collapse #close-panel {
     margin-left: 0;
 }
 
-.block-panel.collapse #close-block-panel img {
+.panel.collapse #close-panel img {
     transform: scaleX(-1)
 }
 
@@ -213,7 +217,7 @@
     overflow: scroll;
 }
 
-.block-panel.collapse ~ .canvas {
+.panel.collapse ~ .canvas {
     width: 100%;
 }
 
@@ -221,7 +225,7 @@
 .block-item {
     background: #FFFFFF;
     position: absolute;
-    cursor: pointer;
+    cursor: grab;
     min-height: 100px;
     width: var(--block-item-width);
     border: 1px solid transparent;
@@ -243,6 +247,7 @@
 }
 
 .block-item .block-item-header {
+    cursor: pointer;
     border-bottom: 1px solid rgb(4 32 69 / 10%);
 }
 
@@ -286,7 +291,7 @@
     font-weight: 700;
 }
 
-.block-between{
+.block-between {
     background: #2fb344;
 }
 

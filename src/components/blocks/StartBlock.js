@@ -12,6 +12,7 @@ class StartBlock extends Component {
         const {
             block,
             onMouseDown,
+            onClick,
             onLinkClick,
             activeLinkPosition,
             isActive,
@@ -35,7 +36,7 @@ class StartBlock extends Component {
             >
                 <div style={{position: 'relative'}}>
                     <div>
-                        <div className="block-item-header">
+                        <div className="block-item-header" onClick={onClick}>
                             <h4>Start {this.props.id}</h4>
                         </div>
                         <div className="block-item-body">

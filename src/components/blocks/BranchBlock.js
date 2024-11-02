@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import classNames from "classnames";
+import IconLink from "../../assets/icon/IconLink";
 
 class BranchBlock extends Component {
     constructor(props) {
@@ -14,7 +15,7 @@ class BranchBlock extends Component {
             width: '10px',
             height: '10px',
             backgroundColor: 'transparent',
-            border: isActive ? '2px solid green' : '2px solid transparent',
+            color: isActive ? '#2196f3' : 'black',
             cursor: 'pointer',
             ...(position === 'top' && {top: -5, left: '50%', transform: 'translateX(-50%)'}),
             ...(position === 'right' && {top: '50%', right: -5, transform: 'translateY(-50%)'}),
@@ -28,6 +29,7 @@ class BranchBlock extends Component {
             block,
             onMouseDown,
             onLinkClick,
+            onClick,
             activeLinkPosition,
             isActive,
             convertToBranchBlock,
@@ -41,20 +43,17 @@ class BranchBlock extends Component {
 
         return (
             <div id={`block-${block.id}`}
-                onMouseDown={onMouseDown}
-                className={classNames("block-item", {'active': isActive, 'branch': isBranch})}
-                style={{
-                    left: block.position?.x,
-                    top: block.position?.y,
-                }}
+                 onMouseDown={onMouseDown}
+                 className={classNames("block-item", {'active': isActive, 'branch': isBranch})}
+                 style={{
+                     left: block.position?.x,
+                     top: block.position?.y,
+                 }}
             >
                 <div style={{position: 'relative'}}>
-                    <div style={this.getLinkStyle('top')} onClick={() => onLinkClick('top')}/>
-                    <div style={this.getLinkStyle('right')} onClick={() => onLinkClick('right')}/>
-                    <div style={this.getLinkStyle('bottom')} onClick={() => onLinkClick('bottom')}/>
-                    <div style={this.getLinkStyle('left')} onClick={() => onLinkClick('left')}/>
+                    <div style={this.getLinkStyle('top')} onClick={() => onLinkClick('top')}><IconLink/></div>
                     <div>
-                        <div className="block-item-header">
+                        <div className="block-item-header" onClick={onClick}>
                             <h4>Branch {this.props.id}</h4>
                         </div>
                         <div className="block-item-body">

@@ -29,6 +29,7 @@ class DefaultBlock extends Component {
             block,
             onMouseDown,
             onLinkClick,
+            onClick,
             activeLinkPosition,
             isActive,
             convertToBranchBlock,
@@ -52,7 +53,7 @@ class DefaultBlock extends Component {
                 <div style={{position: 'relative'}}>
                     <div style={this.getLinkStyle('bottom')} onClick={() => onLinkClick('bottom')}><IconLink/></div>
                     <div>
-                        <div className="block-item-header">
+                        <div className="block-item-header" onClick={onClick}>
                             <h4>Block {this.props.id}</h4>
                         </div>
                         <div className="block-item-body">

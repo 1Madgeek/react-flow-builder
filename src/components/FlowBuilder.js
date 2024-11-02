@@ -1,11 +1,11 @@
 import React, {Component} from "react";
-import DefaultBlock from "./blocks/DefaultBlock";
 import '../assets/css/flowy.css';
 import BlockPanel from "./BlockPanel";
 import IconPlus from "../assets/icon/IconPlus";
 import IconX from "../assets/icon/IconX";
 import Block from "./blocks/Block";
 import IconSquarePlus from "../assets/icon/IconSquarePlus";
+import PropertyPanel from "./PropertyPanel";
 
 class FlowBuilder extends Component {
 
@@ -21,8 +21,8 @@ class FlowBuilder extends Component {
             activeLinkPosition: null,
             spaceDown: false,
 
-            collapseBlockPanel: true,
-            blockPanelBlock: null
+            isBlockPanelOpen: false,
+            isPropertyPanelOpen: false,
         };
     }
 
@@ -71,11 +71,12 @@ class FlowBuilder extends Component {
             this.setState({spaceDown: false});
         }
     };
-    selectBlock = (blockId) => {
+    selectBlock = (blockId, type = 'block') => {
         const block = this.getBlock(blockId)
         this.setState({
-            collapseBlockPanel: false,
-            blockPanelBlock: block
+            isBlockPanelOpen: type === 'block',
+            isPropertyPanelOpen: type === 'property',
+            activeBlock: block
         })
     }
 
@@ -85,6 +86,7 @@ class FlowBuilder extends Component {
                 this.addBranch(blockId)
                 break
             case 'end':
+                this.addBlock(blockId, 'end')
                 break
             case 'default':
             default:
@@ -93,12 +95,18 @@ class FlowBuilder extends Component {
         }
     }
 
-    handleBlockPanelCollapse = () => {
+    handlePanelCollapse = () => {
         this.setState({
-            collapseBlockPanel: true,
-            blockPanelBlock: null
+            isBlockPanelOpen: false,
+            isPropertyPanelOpen: false,
+            activeBlock: null
         })
     }
+
+    handlePropertyPanelSubmit = (blockId, value) => {
+        // TODO
+    };
+
     arrangeBlocks = () => {
         const {blocks} = this.state;
         const {flow} = this.props;
@@ -246,8 +254,8 @@ class FlowBuilder extends Component {
         ];
 
         this.setState((prevState) => ({
-            collapseBlockPanel: true,
-            blockPanelBlock: null,
+            isBlockPanelOpen: false,
+            activeBlock: null,
             blocks: [...prevState.blocks, branchBlock, positiveChild, negativeChild],
             links: [...prevState.links, ...newLinks],
         }), this.renderConnections);
@@ -338,7 +346,7 @@ class FlowBuilder extends Component {
     };
 
     linkBlocks = (fromData, toId, toPosition) => {
-        const { blockId, position } = fromData; // blockId here is the 'from' block
+        const {blockId, position} = fromData; // blockId here is the 'from' block
 
         this.setState((prevState) => {
             const fromBlock = this.getBlock(blockId);
@@ -364,19 +372,19 @@ class FlowBuilder extends Component {
                     const existingLinkIndex = block.linkedBlocks.findIndex(link => link.id === toId);
                     if (existingLinkIndex !== -1) {
                         const updatedLinkedBlocks = [...block.linkedBlocks];
-                        updatedLinkedBlocks[existingLinkIndex] = { id: toId, fromPosition: position, toPosition };
-                        return { ...block, linkedBlocks: updatedLinkedBlocks };
+                        updatedLinkedBlocks[existingLinkIndex] = {id: toId, fromPosition: position, toPosition};
+                        return {...block, linkedBlocks: updatedLinkedBlocks};
                     } else {
                         return {
                             ...block,
-                            linkedBlocks: [...block.linkedBlocks, { id: toId, fromPosition: position, toPosition }]
+                            linkedBlocks: [...block.linkedBlocks, {id: toId, fromPosition: position, toPosition}]
                         };
                     }
                 }
                 return block;
             });
 
-            const newLink = { from: blockId, to: toId, fromPosition: position, toPosition };
+            const newLink = {from: blockId, to: toId, fromPosition: position, toPosition};
 
             return {
                 blocks: updatedBlocks,
@@ -387,7 +395,7 @@ class FlowBuilder extends Component {
 
 
     // Method to add a new block taking reference from a given previous block ID
-    addBlock = (prevBlockId) => {
+    addBlock = (prevBlockId, type = 'default') => {
         // Retrieve previous block's position for calculation
         const prevBlock = this.getBlock(prevBlockId);
         if (!prevBlock) return; // Safety check for existing block
@@ -407,7 +415,7 @@ class FlowBuilder extends Component {
         const newBlock = {
             id: blocks.length + 1, // Assumed unique ID generation; use a more robust system if needed
             position: newBlockPosition,
-            type: 'default', // Default block type for now
+            type: type, // Default block type for now
             linkedBlocks: [],
         };
 
@@ -419,8 +427,8 @@ class FlowBuilder extends Component {
 
         // Update state with new block and link
         this.setState((prevState) => ({
-            collapseBlockPanel: true,
-            blockPanelBlock: null,
+            isBlockPanelOpen: false,
+            activeBlock: null,
             blocks: [...prevState.blocks, newBlock],
             links: [...prevState.links, newLink],
         }), this.renderConnections); // Optionally, re-draw connection lines
@@ -604,7 +612,7 @@ class FlowBuilder extends Component {
                     <button
                         key={`last-${block.id}`}
                         className="add-button"
-                        onClick={() => this.selectBlock(block.id)}
+                        onClick={() => this.selectBlock(block.id, 'block')}
                         style={{
                             position: 'absolute',
                             left: x - 15,
@@ -764,7 +772,7 @@ class FlowBuilder extends Component {
     };
 
     render() {
-        const {canvasHeight, collapseBlockPanel, blockPanelBlock, spaceDown, dragging} = this.state;
+        const {canvasHeight, isBlockPanelOpen, isPropertyPanelOpen, activeBlock, spaceDown, dragging} = this.state;
         const cursorStyle = spaceDown
             ? dragging === 'canvas'
                 ? 'grabbing'
@@ -773,12 +781,13 @@ class FlowBuilder extends Component {
 
         return (
             <div className="canvas-container">
-                <BlockPanel
-                    collapseBlockPanel={collapseBlockPanel}
-                    block={blockPanelBlock}
-                    handler={this.handleBlockPanelCollapse}
-                    handleBlockSelect={this.handleBlockSelect}
-                />
+                {isBlockPanelOpen && (
+                    <BlockPanel
+                        block={activeBlock}
+                        closePanel={this.handlePanelCollapse}
+                        handleBlockSelect={this.handleBlockSelect}
+                    />
+                )}
                 <div
                     className="canvas"
                     style={{
@@ -803,10 +812,17 @@ class FlowBuilder extends Component {
                                     ? this.state.activeLinkPosition.position
                                     : null
                             }
-                            isActive={this.state.activeBlock === block.id}
+                            isActive={activeBlock?.id === block.id}
+                            onClick={() => this.selectBlock(block.id, 'property')}
                         />
                     ))}
                 </div>
+                {isPropertyPanelOpen && (
+                    <PropertyPanel block={activeBlock}
+                                   closePanel={this.handlePanelCollapse}
+                                   onSubmit={this.handlePropertyPanelSubmit}
+                    />
+                )}
             </div>
         );
     }

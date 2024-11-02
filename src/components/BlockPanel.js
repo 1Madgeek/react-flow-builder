@@ -3,6 +3,7 @@ import classNames from "classnames";
 import IconSquarePlus from "../assets/icon/IconSquarePlus";
 import IconSiteMap from "../assets/icon/IconSiteMap";
 import IconSquareX from "../assets/icon/IconSquareX";
+import IconX from "../assets/icon/IconX";
 
 class BlockPanel extends Component {
     constructor(props) {
@@ -10,26 +11,26 @@ class BlockPanel extends Component {
         this.state = {}
     }
 
-    toggleBlockPanelVisibility = (event) => {
-        this.props.handler()
+    handleOnClose = (event) => {
+        this.props.closePanel()
     }
 
     render() {
-        const {collapseBlockPanel, block, handleBlockSelect} = this.props;
+        const {block, handleBlockSelect} = this.props;
 
         return (
-            <div className={classNames("block-panel-wrapper", {"active": !collapseBlockPanel})}>
-                <div className={classNames("block-panel", {
-                    "collapse": collapseBlockPanel
-                })}>
-                    <div id="close-block-panel" onClick={(event) => this.toggleBlockPanelVisibility(event)}>
-                        <img src="/image/closeleft.svg" alt={'Collapse'}/>
-                    </div>
-                    <div className="block-panel-header">
+            <div className={classNames("panel-wrapper")}>
+                <div className={classNames("panel")}>
+                    <div className="panel-header">
                         <h2>Blocks</h2>
+                        <div style={{
+                            cursor: "pointer"
+                        }} onClick={(event) => this.handleOnClose(event)}>
+                            <IconX strokeWidth={1}/>
+                        </div>
                     </div>
 
-                    <div className="block-panel-body">
+                    <div className="panel-body">
                         <div className="block-widget-card">
                             <div className="block-widget-card-header">
                                 <h3>Building blocks</h3>
