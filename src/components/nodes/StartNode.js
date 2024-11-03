@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import classNames from "classnames";
 import IconLink from "../../assets/icon/IconLink";
 
-class StartBlock extends Component {
+class StartNode extends Component {
     constructor(props) {
         super(props);
         this.state = {}
@@ -10,37 +10,37 @@ class StartBlock extends Component {
 
     render() {
         const {
-            block,
+            node,
             onMouseDown,
             onClick,
             onLinkClick,
             activeLinkPosition,
             isActive,
-            convertToBranchBlock,
+            convertToBranchNode,
             addBranch,
-            renderBlockActions
+            renderNodeActions
         } = this.props;
 
-        const isBranch = block.type === 'branch';
-        const isStart = block.type === 'start';
-        const isEnd = block.type === 'end';
+        const isBranch = node.type === 'branch';
+        const isStart = node.type === 'start';
+        const isEnd = node.type === 'end';
 
         return (
-            <div id={`block-${block.id}`}
+            <div id={`node-${node.id}`}
                  onMouseDown={onMouseDown}
-                 className={classNames("block-item", {'active': isActive, 'branch': isBranch})}
+                 className={classNames("node-item", {'active': isActive, 'branch': isBranch})}
                  style={{
-                     left: block.position?.x,
-                     top: block.position?.y,
+                     left: node.position?.x,
+                     top: node.position?.y,
                  }}
             >
                 <div style={{position: 'relative'}}>
                     <div>
-                        <div className="block-item-header">
+                        <div className="node-item-header">
                             <h4 onClick={onClick}>Start {this.props.id}</h4>
                         </div>
-                        <div className="block-item-body">
-                            {renderBlockActions}
+                        <div className="node-item-body">
+                            {renderNodeActions}
                         </div>
                     </div>
                 </div>
@@ -49,4 +49,4 @@ class StartBlock extends Component {
     }
 }
 
-export default StartBlock
+export default StartNode

@@ -33,8 +33,8 @@ import {FlowBuilder} from '@madgeek_in/react-flow-builder';
 
 ## Features
 
-- **Manual Link Creation**: Quickly establish connections between blocks by manually selecting link points.
-- **Automatic & Programmatic Linking:** Automate connections based on predefined logic or create links programmatically
+- **Manual Edge Creation**: Quickly establish connections between nodes by manually selecting edge points.
+- **Automatic & Programmatic Edge Connection:** Automate connections based on predefined logic or create edges programmatically
   as your application scales.
 - **Branching**: Easily design complex workflows with branching logic and merges, supporting diverse use cases.
 - **Lightweight and Performant**: Built with simplicity in mind, FlowBuilder is optimized to be lightweight, with
@@ -50,39 +50,39 @@ overhead.
 
 ### Core Features
 
-1. [x] **Block Management:**
-    - **Add Blocks**: Dynamically add blocks to the canvas.
-    - **Remove Blocks**: Remove blocks and automatically delete their descendant blocks.
-    - **Convert Block to Branch**: Transform a regular block into a branch block with constraints to maintain positive
+1. [x] **Node Management:**
+    - **Add Nodes**: Dynamically add nodes to the canvas.
+    - **Remove Nodes**: Remove nodes and automatically delete their descendant nodes.
+    - **Convert Node to Branch**: Transform a regular node into a branch node with constraints to maintain positive
       and negative paths.
 
 2. [x] **Branch Logic:**
-    - **Positive and Negative Paths**: Ensure each branch block maintains exactly two children, representing positive
+    - **Positive and Negative Paths**: Ensure each branch node maintains exactly two children, representing positive
       and negative paths.
-    - **Prevent Invalid Branch Creation**: Disallow conversion if the block violates branch constraints (e.g., more than
+    - **Prevent Invalid Branch Creation**: Disallow conversion if the node violates branch constraints (e.g., more than
       two descendants).
 
-3. [x] **Link Management:**
-    - **Create Links**: Connect blocks to establish flow paths.
-    - **Remove Links**: Remove links, and if resulting blocks are disjointed (i.e., not connected to a root), remove
-      those blocks.
+3. [x] **Edge Management:**
+    - **Create Edges**: Connect nodes to establish flow paths.
+    - **Remove Edges**: Remove edges, and if resulting nodes are disjointed (i.e., not connected to a root), remove
+      those nodes.
 
 4. [x] **Drag-and-Drop Functionality:**
-    - **Individual Block Movement**: Allow users to drag individual blocks to new positions.
+    - **Individual node Movement**: Allow users to drag individual nodes to new positions.
     - **Canvas Drag**: Enable dragging of the entire canvas and its content if specific user settings are selected.
 
 5. [x] **Auto-Arrangement and Centering:**
-    - **Arrange Blocks**: Automatically center blocks horizontally while maintaining their top positions.
+    - **Arrange nodes**: Automatically center nodes horizontally while maintaining their top positions.
     - **Responsive Positioning**: Dynamic adjustment for different screen sizes.
 
 ### User Interface Features
 
 1. [x] **Interactive Elements:**
-    - **"+" Button**: Add new blocks to existing connections.
-    - **"Remove" Button**: Remove blocks or links through direct interaction.
+    - **"+" Button**: Add new nodes to existing connections.
+    - **"Remove" Button**: Remove nodes or edges through direct interaction.
 
 2. [x] **Styling and Display:**
-    - **Block Appearance**: Differentiate block types with unique colors and labels using a consistent design language.
+    - **Node Appearance**: Differentiate node types with unique colors and labels using a consistent design language.
     - **Connection Paths**: Render connections with SVG paths, adjusting for straight or "L"-shaped paths to indicate
       flow or branching.
 
@@ -102,7 +102,7 @@ overhead.
 3. [ ] **Enhanced Conditional Logic**: Enable complex branching conditions, allowing for more advanced workflows based
    on dynamic data or inputs.
 
-4. [ ] **Customizable UI**: Options for users to customize the look and feel of their canvas, blocks, and connections.
+4. [ ] **Customizable UI**: Options for users to customize the look and feel of their canvas, nodes, and connections.
 
 ### Future Enhancements
 
@@ -112,17 +112,17 @@ overhead.
 
 3. [ ] **Version Control**: Maintain history and versioning for workflows, providing rollback capabilities.
 
-4. [ ] **Elements/Block Panel**: List of blocks to choose from when creating a block.
+4. [ ] **Elements/Node Panel**: List of nodes to choose from when creating a node.
 
-5. [ ] **Block Property Panel**: Block configuration panel like [Elementor](https://github.com/elementor/elementor).
+5. [ ] **Node Property Panel**: Node configuration panel like [Elementor](https://github.com/elementor/elementor).
 
-6. [ ] **Drag & Drop Block**: Allow dragging & dropping blocks from the block lists into the canvas.
+6. [ ] **Drag & Drop Node**: Allow dragging & dropping nodes from the node lists into the canvas.
 
-7. [ ] **Auto Snapping**: Automatically snap to an existing block and create links.
+7. [ ] **Auto Snapping**: Automatically snap to an existing node and create edges.
 
 8. [ ] **Start Node**: Allow start node configuration to determine if the flow should be executed.
 
-9. [ ] **End Node**: Allow blocks to be of type "End". Blocks of type end won't have any descendents and stop the flow. 
+9. [ ] **End Node**: Allow nodes to be of type "End". Nodes of type end won't have any descendents and stop the flow. 
 
 ## Use Cases
 
@@ -130,7 +130,7 @@ overhead.
   event-based workflows. Define sequences for actions based on real-time events and improve decision-making automation.
 
 - **Marketing Automation Tools:** Ideal for mail marketing workflows and campaign automation, allowing marketing teams
-  to visualize customer journeys, manage touchpoints, and streamline campaign flows.
+  to visualize customer journeys, manage touch points, and streamline campaign flows.
 
 - **Business Process Automation:** Tailored for enterprise process automation, FlowBuilder is a great fit for designing
   complex business workflows. [Madgeek](https://www.madgeek.in), a leader in enterprise tools, specializes in creating

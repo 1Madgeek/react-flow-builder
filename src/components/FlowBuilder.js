@@ -1,9 +1,9 @@
 import React, {Component} from "react";
 import '../assets/css/flowy.css';
-import BlockPanel from "./BlockPanel";
+import NodePanel from "./NodePanel";
 import IconPlus from "../assets/icon/IconPlus";
 import IconX from "../assets/icon/IconX";
-import Block from "./blocks/Block";
+import Node from "./nodes/Node";
 import IconSquarePlus from "../assets/icon/IconSquarePlus";
 import PropertyPanel from "./PropertyPanel";
 
@@ -11,15 +11,15 @@ class FlowBuilder extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            blocks: [],
-            links: [],
+            nodes: [],
+            edges: [],
             dragging: null,
             canvasHeight: 600,
             offset: {x: 0, y: 0},
-            activeBlock: null,
+            activeNode: null,
             activeLinkPosition: null,
             spaceDown: false,
-            isBlockPanelOpen: false,
+            isNodePanelOpen: false,
             isPropertyPanelOpen: false,
         };
     }
@@ -39,22 +39,22 @@ class FlowBuilder extends Component {
     }
 
     /**
-     * Initializes the canvas with a starting block.
+     * Initializes the canvas with a starting node.
      */
     initializeCanvas = () => {
-        const initialBlocks = [
+        const initialNodes = [
             {
                 id: 0,
                 position: {x: 50, y: 50},
                 type: 'start',
-                linkedBlocks: []
+                linkedNodes: []
             },
         ];
 
         this.setState({
-            blocks: initialBlocks,
-            links: [],
-        }, this.arrangeBlocks);
+            nodes: initialNodes,
+            edges: [],
+        }, this.arrangeNodes);
     }
 
     /**
@@ -81,101 +81,101 @@ class FlowBuilder extends Component {
     };
 
     /**
-     * Selects a block and opens the appropriate panel based on the type.
-     * @param {number} blockId - The ID of the block to be selected.
-     * @param {string} [type='block'] - The type of panel to open ('block' or 'property').
+     * Selects a node and opens the appropriate panel based on the type.
+     * @param {number} nodeId - The ID of the node to be selected.
+     * @param {string} [type='node'] - The type of panel to open ('node' or 'property').
      */
-    selectBlock = (blockId, type = 'block') => {
-        const block = this.getBlock(blockId);
+    selectNode = (nodeId, type = 'node') => {
+        const node = this.getNode(nodeId);
         this.setState({
-            isBlockPanelOpen: type === 'block',
+            isNodePanelOpen: type === 'node',
             isPropertyPanelOpen: type === 'property',
-            activeBlock: block
+            activeNode: node
         });
     }
 
     /**
-     * Handles the selection of a block based on its type during block panel interactions.
-     * @param {number} blockId - The ID of the block being selected.
-     * @param {string} type - The type of block action (e.g., 'branch', 'end').
+     * Handles the selection of a node based on its type during node panel interactions.
+     * @param {number} nodeId - The ID of the node being selected.
+     * @param {string} type - The type of node action (e.g., 'branch', 'end').
      */
-    handleBlockSelect = (blockId, type) => {
+    handleNodeSelect = (nodeId, type) => {
         switch (type) {
             case 'branch':
-                this.addBranch(blockId);
+                this.addBranch(nodeId);
                 break;
             case 'end':
-                this.addBlock(blockId, 'end');
+                this.addNode(nodeId, 'end');
                 break;
             case 'default':
             default:
-                this.addBlock(blockId);
+                this.addNode(nodeId);
                 break;
         }
     }
 
     /**
-     * Closes any open block panels, resetting their state.
+     * Closes any open node panels, resetting their state.
      */
     handlePanelCollapse = () => {
         this.setState({
-            isBlockPanelOpen: false,
+            isNodePanelOpen: false,
             isPropertyPanelOpen: false,
-            activeBlock: null
+            activeNode: null
         });
     }
 
     /**
      * Submits the property panel input. (Currently not implemented)
-     * @param {number} blockId - The ID of the block being edited.
-     * @param {object} value - The new property value to update the block with.
+     * @param {number} nodeId - The ID of the node being edited.
+     * @param {object} value - The new property value to update the node with.
      */
-    handlePropertyPanelSubmit = (blockId, value) => {
+    handlePropertyPanelSubmit = (nodeId, value) => {
         // TODO: Implement property panel submit logic
     };
 
     /**
-     * Rearranges the blocks horizontally centered within the canvas.
+     * Rearranges the nodes horizontally centered within the canvas.
      */
-    arrangeBlocks = () => {
-        const {blocks} = this.state;
+    arrangeNodes = () => {
+        const {nodes} = this.state;
         const {flow} = this.props;
 
-        const blockWidth = 318;
+        const nodeWidth = 318;
 
         // Get the actual dimensions of the canvas div
         const canvasElement = document.querySelector('.canvas');
         const canvasWidth = canvasElement?.offsetWidth || 800;
 
-        // Calculate the horizontal bounds of your blocks
-        const leftmost = Math.min(...blocks.map(block => block.position.x));
-        const rightmost = Math.max(...blocks.map(block => block.position.x)) + blockWidth;
+        // Calculate the horizontal bounds of your nodes
+        const leftmost = Math.min(...nodes.map(node => node.position.x));
+        const rightmost = Math.max(...nodes.map(node => node.position.x)) + nodeWidth;
 
         const layoutWidth = rightmost - leftmost;
 
         // Calculate the offset needed to center the layout horizontally
         const offsetX = (canvasWidth - layoutWidth) / 2 - leftmost;
 
-        const centeredBlocks = blocks.map((block) => {
+        const centeredNodes = nodes.map((node) => {
             return {
-                ...block,
+                ...node,
                 position: {
-                    x: block.position.x + offsetX,
-                    y: block.position.y, // Keep the y position as it is to respect topmost placement
+                    x: node.position.x + offsetX,
+                    y: node.position.y, // Keep the y position as it is to respect topmost placement
                 },
             };
         });
 
-        // Set new block positions
-        this.setState({blocks: centeredBlocks}, this.renderConnections);
+        // Set new node positions
+        this.setState({nodes: centeredNodes}, this.renderConnections);
     };
 
     /**
-     * Handles mouse down event for initiating dragging of a block or the entire canvas.
+     * Handles mouse down event for initiating dragging of a node or the entire canvas.
      * @param {MouseEvent} event - The mouse event triggered on mousedown.
-     * @param {number} blockId - The ID of the block being dragged.
+     * @param {number} nodeId - The ID of the node being dragged.
      */
-    handleMouseDown = (event, blockId) => {
+    handleMouseDown = (event, nodeId) => {
         const {allowDragging} = this.props;
         const {spaceDown} = this.state;
 
@@ -184,24 +184,24 @@ class FlowBuilder extends Component {
             this.setState({
                 dragging: 'canvas',
                 initialClick: {x: event.clientX, y: event.clientY},
-                initialPositions: this.state.blocks.map((block) => ({...block})),
+                initialPositions: this.state.nodes.map((node) => ({...node})),
             });
         } else if (allowDragging) {
-            // Handle individual block dragging
+            // Handle individual node dragging
             const mouseX = event.clientX;
             const mouseY = event.clientY;
             this.setState({
-                dragging: blockId,
+                dragging: nodeId,
                 offset: {
-                    x: mouseX - this.getBlock(blockId).position.x,
-                    y: mouseY - this.getBlock(blockId).position.y,
+                    x: mouseX - this.getNode(nodeId).position.x,
+                    y: mouseY - this.getNode(nodeId).position.y,
                 },
             });
         }
     };
 
     /**
-     * Handles mouse move event to update position of blocks or the canvas during dragging.
+     * Handles mouse move event to update position of nodes or the canvas during dragging.
      * @param {MouseEvent} event - The mouse event triggered on mousemove.
      */
     handleMouseMove = (event) => {
@@ -216,31 +216,31 @@ class FlowBuilder extends Component {
                 const dy = mouseY - initialClick.y;
                 this.setState(
                     (prevState) => ({
-                        blocks: initialPositions.map((block) => ({
-                            ...block,
+                        nodes: initialPositions.map((node) => ({
+                            ...node,
                             position: {
-                                x: block.position.x + dx,
-                                y: block.position.y + dy,
+                                x: node.position.x + dx,
+                                y: node.position.y + dy,
                             },
                         })),
                     }),
                     this.renderConnections
                 );
             } else {
-                // Move a single block
+                // Move a single node
                 this.setState(
                     (prevState) => ({
-                        blocks: prevState.blocks.map((block) => {
-                            if (block.id === dragging) {
+                        nodes: prevState.nodes.map((node) => {
+                            if (node.id === dragging) {
                                 return {
-                                    ...block,
+                                    ...node,
                                     position: {
                                         x: mouseX - prevState.offset.x,
                                         y: mouseY - prevState.offset.y,
                                     },
                                 };
                             }
-                            return block;
+                            return node;
                         }),
                     }),
                     this.renderConnections
@@ -250,83 +250,83 @@ class FlowBuilder extends Component {
     };
 
     /**
-     * Resets the dragging state on mouse up event, stopping block or canvas dragging.
+     * Resets the dragging state on mouse up event, stopping node or canvas dragging.
      */
     handleMouseUp = () => {
         this.setState({
             dragging: null,
             initialClick: null,
             initialPositions: null,
-            activeBlock: null,
+            activeNode: null,
         });
     };
 
     /**
-     * Adds a new branch to the workflow from a specified block, creating a new set of linked blocks.
-     * @param {number} prevBlockId - The ID of the block from which the branch originates.
+     * Adds a new branch to the workflow from a specified node, creating a new set of linked nodes.
+     * @param {number} prevNodeId - The ID of the node from which the branch originates.
      */
-    addBranch = (prevBlockId) => {
-        const {blocks} = this.state;
+    addBranch = (prevNodeId) => {
+        const {nodes} = this.state;
 
-        const prevBlock = this.getBlock(prevBlockId);
-        if (!prevBlock) return;
+        const prevNode = this.getNode(prevNodeId);
+        if (!prevNode) return;
 
-        // Define the new branch block
-        const branchBlock = {
-            id: blocks.length + 1,
-            position: {x: prevBlock.position.x, y: prevBlock.position.y + 220},
+        // Define the new branch node
+        const branchNode = {
+            id: nodes.length + 1,
+            position: {x: prevNode.position.x, y: prevNode.position.y + 220},
             type: 'branch',
-            linkedBlocks: [],
+            linkedNodes: [],
         };
 
-        // Define positive and negative child blocks
+        // Define positive and negative child nodes
         const positiveChild = {
-            id: blocks.length + 2,
-            position: {x: branchBlock.position.x - 250, y: branchBlock.position.y + 220},
+            id: nodes.length + 2,
+            position: {x: branchNode.position.x - 250, y: branchNode.position.y + 220},
             type: 'default',
-            linkedBlocks: [],
+            linkedNodes: [],
         };
 
         const negativeChild = {
-            id: blocks.length + 3,
-            position: {x: branchBlock.position.x + 250, y: branchBlock.position.y + 220},
+            id: nodes.length + 3,
+            position: {x: branchNode.position.x + 250, y: branchNode.position.y + 220},
             type: 'default',
-            linkedBlocks: [],
+            linkedNodes: [],
         };
 
-        // Establish connections (links) from the branch block to children
-        const newLinks = [
-            {from: branchBlock.id, to: positiveChild.id, type: 'positive'},
-            {from: branchBlock.id, to: negativeChild.id, type: 'negative'},
-            {from: prevBlockId, to: branchBlock.id}
+        // Establish connections (edges) from the branch node to children
+        const newEdges = [
+            {from: branchNode.id, to: positiveChild.id, type: 'positive'},
+            {from: branchNode.id, to: negativeChild.id, type: 'negative'},
+            {from: prevNodeId, to: branchNode.id}
         ];
 
         this.setState((prevState) => ({
-            isBlockPanelOpen: false,
-            activeBlock: null,
-            blocks: [...prevState.blocks, branchBlock, positiveChild, negativeChild],
-            links: [...prevState.links, ...newLinks],
+            isNodePanelOpen: false,
+            activeNode: null,
+            nodes: [...prevState.nodes, branchNode, positiveChild, negativeChild],
+            edges: [...prevState.edges, ...newEdges],
         }), this.renderConnections);
     };
 
     /**
-     * Converts a block to a branch type, managing its children blocks.
-     * @param {number} branchId - The ID of the block to convert into a branch block.
+     * Converts a node to a branch type, managing its children nodes.
+     * @param {number} branchId - The ID of the node to convert into a branch node.
      */
-    convertToBranchBlock = (branchId) => {
-        const {blocks, links} = this.state;
-        const branchBlock = this.getBlock(branchId);
+    convertToBranchNode = (branchId) => {
+        const {nodes, edges} = this.state;
+        const branchNode = this.getNode(branchId);
 
-        if (!branchBlock || branchBlock.type === 'branch') {
-            alert("Block is already a branch or invalid.");
+        if (!branchNode || branchNode.type === 'branch') {
+            alert("Node is already a branch or invalid.");
             return;
         }
 
         // Locate existing direct descendants
-        const directDescendants = links.filter(link => link.from === branchId).map(link => link.to);
+        const directDescendants = edges.filter(link => link.from === branchId).map(link => link.to);
 
         if (directDescendants.length > 2) {
-            alert("Cannot convert to branch: Block already has more than two descendants.");
+            alert("Cannot convert to branch: Node already has more than two descendants.");
             return;
         }
 
@@ -336,119 +336,119 @@ class FlowBuilder extends Component {
         if (directDescendants.length === 0) {
             // No children, prepare both positive and negative children
             positiveChild = {
-                id: blocks.length + 1,
-                position: {x: branchBlock.position.x - 250, y: branchBlock.position.y + 170},
+                id: nodes.length + 1,
+                position: {x: branchNode.position.x - 250, y: branchNode.position.y + 170},
                 type: 'default',
-                linkedBlocks: [],
+                linkedNodes: [],
             };
             negativeChild = {
-                id: blocks.length + 2,
-                position: {x: branchBlock.position.x + 250, y: branchBlock.position.y + 170},
+                id: nodes.length + 2,
+                position: {x: branchNode.position.x + 250, y: branchNode.position.y + 170},
                 type: 'default',
-                linkedBlocks: [],
+                linkedNodes: [],
             };
             newChildren.push(positiveChild, negativeChild);
 
         } else if (directDescendants.length === 1) {
             // Existing descendant becomes positive, create a new negative
-            positiveChild = this.getBlock(directDescendants[0]);
+            positiveChild = this.getNode(directDescendants[0]);
             negativeChild = {
-                id: blocks.length + 1,
-                position: {x: branchBlock.position.x + 500, y: branchBlock.position.y + 170},
+                id: nodes.length + 1,
+                position: {x: branchNode.position.x + 500, y: branchNode.position.y + 170},
                 type: 'default',
-                linkedBlocks: [],
+                linkedNodes: [],
             };
             newChildren.push(negativeChild);
 
         } else {
             // Two children already - assume ordered for positive and negative
-            positiveChild = this.getBlock(directDescendants[0]);
-            negativeChild = this.getBlock(directDescendants[1]);
+            positiveChild = this.getNode(directDescendants[0]);
+            negativeChild = this.getNode(directDescendants[1]);
         }
 
-        const newBranchBlock = {
-            ...branchBlock,
+        const newBranchNode = {
+            ...branchNode,
             type: 'branch',
-            linkedBlocks: [positiveChild.id, negativeChild.id],
+            linkedNodes: [positiveChild.id, negativeChild.id],
         };
 
-        // Update state with new branch block
+        // Update state with new branch node
         this.setState((prevState) => ({
-            blocks: prevState.blocks.map(block =>
-                block.id === branchId ? newBranchBlock : block
+            nodes: prevState.nodes.map(node =>
+                node.id === branchId ? newBranchNode : node
             ).concat(newChildren),
-            links: prevState.links.concat(newChildren.map(child => ({
+            edges: prevState.edges.concat(newChildren.map(child => ({
                 from: branchId,
                 to: child.id,
                 type: child === positiveChild ? 'positive' : 'negative',
             }))),
-        }), this.arrangeBlocks);
+        }), this.arrangeNodes);
     };
 
     /**
-     * Handles link click interactions to either create links or store the current active link position.
+     * Handles link click interactions to either create edges or store the current active link position.
      * @param {string} position - The position where the link originates.
-     * @param {number} blockId - The ID of the block where the link interaction occurred.
+     * @param {number} nodeId - The ID of the node where the link interaction occurred.
      */
-    handleLinkClick = (position, blockId) => {
+    handleLinkClick = (position, nodeId) => {
         const {activeLinkPosition} = this.state;
 
         if (activeLinkPosition) {
-            if (activeLinkPosition.blockId !== blockId) {
-                this.linkBlocks(activeLinkPosition, blockId, position);
+            if (activeLinkPosition.nodeId !== nodeId) {
+                this.linkNodes(activeLinkPosition, nodeId, position);
                 this.setState({activeLinkPosition: null});
             }
         } else {
-            this.setState({activeLinkPosition: {blockId, position}});
+            this.setState({activeLinkPosition: {nodeId, position}});
         }
     };
 
     /**
-     * Links two blocks together while ensuring there are no duplicate or invalid links.
-     * @param {object} fromData - Contains block ID and position of the start of the link.
-     * @param {number} toId - The ID of the block to which the link is directed.
-     * @param {string} toPosition - The position on the 'to' block where the link should connect.
+     * edges two nodes together while ensuring there are no duplicate or invalid edges.
+     * @param {object} fromData - Contains node ID and position of the start of the link.
+     * @param {number} toId - The ID of the node to which the link is directed.
+     * @param {string} toPosition - The position on the 'to' node where the link should connect.
      */
-    linkBlocks = (fromData, toId, toPosition) => {
-        const {links, blocks} = this.state;
-        const {blockId, position} = fromData;
+    linkNodes = (fromData, toId, toPosition) => {
+        const {edges, nodes} = this.state;
+        const {nodeId, position} = fromData;
 
         this.setState((prevState) => {
-            const fromBlock = this.getBlock(blockId);
-            const toBlock = this.getBlock(toId);
+            const fromNode = this.getNode(nodeId);
+            const toNode= this.getNode(toId);
 
-            if (!fromBlock || !toBlock) {
-                alert('Invalid blocks specified for linking.');
+            if (!fromNode || !toNode) {
+                alert('Invalid nodes specified for linking.');
                 return prevState;
             }
 
-            // Ensure no duplicate links between the same two blocks
-            const linkExists = links.some(link =>
-                (link.from === blockId && link.to === toId) ||
-                (link.to === blockId && link.from === toId)
+            // Ensure no duplicate edges between the same two nodes
+            const linkExists = edges.some(link =>
+                (link.from === nodeId && link.to === toId) ||
+                (link.to === nodeId && link.from === toId)
             );
             if (linkExists) {
-                alert('A link between these two blocks already exists.');
+                alert('A link between these two nodes already exists.');
                 return prevState;
             }
 
             // Prevent linking immediate children back to their branch parent
-            const toBlockParentLink = links.find(link => link.to === blockId);
-            const toBlockParentId = toBlockParentLink?.from;
-            const toBlockParentBlock = this.getBlock(toBlockParentId);
+            const toNodeParentLink = edges.find(link => link.to === nodeId);
+            const toNodeParentId = toNodeParentLink?.from;
+            const toNodeParentNode = this.getNode(toNodeParentId);
 
-            if (toBlockParentBlock?.type === 'branch' && toBlockParentId === toId) {
-                alert('Cannot link immediate child to the parent branch block.');
+            if (toNodeParentNode?.type === 'branch' && toNodeParentId === toId) {
+                alert('Cannot link immediate child to the parent branch node.');
                 return prevState;
             }
 
-            // Prevent linking if both are children of the same parent branch block
-            const fromParent = links.find(link => link.to === blockId)?.from;
-            const toParent = links.find(link => link.to === toId)?.from;
-            const fromParentBlock = this.getBlock(fromParent);
-            const toParentBlock = this.getBlock(toParent);
+            // Prevent linking if both are children of the same parent branch node
+            const fromParent = edges.find(link => link.to === nodeId)?.from;
+            const toParent = edges.find(link => link.to === toId)?.from;
+            const fromParentNode = this.getNode(fromParent);
+            const toParentNode = this.getNode(toParent);
 
-            if (fromParent === toParent && fromParentBlock?.type === 'branch') {
+            if (fromParent === toParent && fromParentNode?.type === 'branch') {
                 alert('Cannot link immediate children of the same branch.');
                 return prevState;
             }
@@ -458,212 +458,212 @@ class FlowBuilder extends Component {
             //     if (visited.has(startId)) return false;
             //     visited.add(startId);
             //
-            //     return prevState.links.some(link =>
+            //     return prevState.edges.some(link =>
             //         link.from === startId && (link.to === targetId || isCircularLink(link.to, targetId, visited))
             //     );
             // };
             //
-            // if (isCircularLink(toId, blockId)) {
-            //     alert('Cannot create circular links.');
+            // if (isCircularLink(toId, nodeId)) {
+            //     alert('Cannot create circular edges.');
             //     return prevState;
             // }
 
-            // Update block links
-            const updatedBlocks = blocks.map(block => {
-                if (block.id === blockId) {
+            // Update node edges
+            const updatedNodes = nodes.map(node => {
+                if (node.id === nodeId) {
                     return {
-                        ...block,
-                        linkedBlocks: [...block.linkedBlocks, {id: toId, fromPosition: position, toPosition}],
+                        ...node,
+                        linkedNodes: [...node.linkedNodes, {id: toId, fromPosition: position, toPosition}],
                     };
                 }
-                return block;
+                return node;
             });
 
             // Add the new link
-            const newLink = {from: blockId, to: toId, fromPosition: position, toPosition};
+            const newLink = {from: nodeId, to: toId, fromPosition: position, toPosition};
 
             return {
-                blocks: updatedBlocks,
-                links: [...links, newLink],
+                nodes: updatedNodes,
+                edges: [...edges, newLink],
             };
         }, this.renderConnections);
     };
 
     /**
-     * Adds a new block connected to a specified previous block.
-     * @param {number} prevBlockId - The ID of the block to which the new block will be linked.
-     * @param {string} [type='default'] - The type of block to add.
+     * Adds a new node connected to a specified previous node.
+     * @param {number} prevNodeId - The ID of the node to which the new node will be linked.
+     * @param {string} [type='default'] - The type of node to add.
      */
-    addBlock = (prevBlockId, type = 'default') => {
-        // Retrieve previous block's position for calculation
-        const prevBlock = this.getBlock(prevBlockId);
-        if (!prevBlock) return;
+    addNode = (prevNodeId, type = 'default') => {
+        // Retrieve previous node's position for calculation
+        const prevNode = this.getNode(prevNodeId);
+        if (!prevNode) return;
 
-        const {blocks, links} = this.state;
+        const {nodes, edges} = this.state;
 
-        const blockWidth = 100;
-        const scrollY = blockWidth + 120;
+        const nodeWidth = 100;
+        const scrollY = nodeWidth + 120;
 
-        // Determine new block position relative to the previous block
-        const newBlockPosition = {
-            x: prevBlock.position.x,
-            y: prevBlock.position.y + scrollY,
+        // Determine new node position relative to the previous node
+        const newNodePosition = {
+            x: prevNode.position.x,
+            y: prevNode.position.y + scrollY,
         };
 
-        // Create new block with a unique ID
-        const newBlock = {
-            id: blocks.length + 1,
-            position: newBlockPosition,
+        // Create new node with a unique ID
+        const newNode = {
+            id: nodes.length + 1,
+            position: newNodePosition,
             type: type,
-            linkedBlocks: [],
+            linkedNodes: [],
         };
 
-        // Update the links: from previous block to the new block
+        // Update the edges: from previous node to the new node
         const newLink = {
-            from: prevBlockId,
-            to: newBlock.id,
+            from: prevNodeId,
+            to: newNode.id,
         };
 
-        // Update state with new block and link
+        // Update state with new node and link
         this.setState((prevState) => ({
-            isBlockPanelOpen: false,
-            activeBlock: null,
-            blocks: [...prevState.blocks, newBlock],
-            links: [...prevState.links, newLink],
+            isNodePanelOpen: false,
+            activeNode: null,
+            nodes: [...prevState.nodes, newNode],
+            edges: [...prevState.edges, newLink],
         }), this.renderConnections);
     };
 
     /**
-     * Inserts a block between two existing linked blocks.
-     * @param {number} fromId - The ID of the starting block of the existing link.
-     * @param {number} toId - The ID of the ending block of the existing link.
+     * Inserts a node between two existing linked nodes.
+     * @param {number} fromId - The ID of the starting node of the existing link.
+     * @param {number} toId - The ID of the ending node of the existing link.
      */
-    addBlockBetween = (fromId, toId) => {
-        const fromBlockIndex = this.state.blocks.findIndex(block => block.id === fromId);
-        const toBlockIndex = this.state.blocks.findIndex(block => block.id === toId);
+    addNodeBetween = (fromId, toId) => {
+        const fromNodeIndex = this.state.nodes.findIndex(node => node.id === fromId);
+        const toNodeIndex = this.state.nodes.findIndex(node => node.id === toId);
 
-        if (fromBlockIndex < 0 || toBlockIndex < 0 || fromBlockIndex === toBlockIndex) return;
+        if (fromNodeIndex < 0 || toNodeIndex < 0 || fromNodeIndex === toNodeIndex) return;
 
-        // Find necessary block positions
-        const fromBlock = this.state.blocks[fromBlockIndex];
-        const toBlock = this.state.blocks[toBlockIndex];
+        // Find necessary node positions
+        const fromNode = this.state.nodes[fromNodeIndex];
+        const toNode = this.state.nodes[toNodeIndex];
 
         const newPosition = {
-            x: (fromBlock.position.x + toBlock.position.x) / 2,
-            y: (fromBlock.position.y + toBlock.position.y) / 2 + 120,
+            x: (fromNode.position.x + toNode.position.x) / 2,
+            y: (fromNode.position.y + toNode.position.y) / 2 + 120,
         };
 
-        const newBlock = {
-            id: this.state.blocks.length + 1,
+        const newNode = {
+            id: this.state.nodes.length + 1,
             position: newPosition,
             type: 'default',
-            linkedBlocks: [],
+            linkedNodes: [],
         };
 
-        // Insert new block into the blocks array
-        const updatedBlocks = [
-            ...this.state.blocks.slice(0, toBlockIndex),
-            newBlock,
-            ...this.state.blocks.slice(toBlockIndex)
+        // Insert new node into the nodes array
+        const updatedNodes = [
+            ...this.state.nodes.slice(0, toNodeIndex),
+            newNode,
+            ...this.state.nodes.slice(toNodeIndex)
         ];
 
         // Remove the existing link between fromId and toId
-        const updatedLinks = this.state.links.filter(
+        const updatedEdges = this.state.edges.filter(
             link => !(link.from === fromId && link.to === toId)
         );
 
-        // Add new links
-        updatedLinks.push({from: fromId, to: newBlock.id});
-        updatedLinks.push({from: newBlock.id, to: toId});
+        // Add new edges
+        updatedEdges.push({from: fromId, to: newNode.id});
+        updatedEdges.push({from: newNode.id, to: toId});
 
-        const blockHeight = 100;
+        const nodeHeight = 100;
 
-        this.shiftBlocksDown(toId, updatedBlocks, updatedLinks, blockHeight);
+        this.shiftNodesDown(toId, updatedNodes, updatedEdges, nodeHeight);
 
         this.setState({
-            blocks: updatedBlocks,
-            links: updatedLinks,
+            nodes: updatedNodes,
+            edges: updatedEdges,
         }, this.renderConnections);
     };
 
     /**
-     * Converts a block to an end block, ensuring no descendants remain linked.
-     * @param {number} blockId - The ID of the block to be converted to the end type.
+     * Converts a node to an end node, ensuring no descendants remain linked.
+     * @param {number} nodeId - The ID of the node to be converted to the end type.
      */
-    convertToEndBlock = (blockId) => {
-        const {blocks, links} = this.state;
-        const block = this.getBlock(blockId);
+    convertToEndNode = (nodeId) => {
+        const {nodes, edges} = this.state;
+        const node = this.getNode(nodeId);
 
-        if (block?.type === 'end') return; // Already an end block
+        if (node?.type === 'end') return; // Already an end node
 
         // Remove all descendants if any
-        const descendants = this.findDescendants(blockId);
-        const blocksToKeep = blocks.filter(b => !descendants.includes(b.id));
-        const linksToKeep = links.filter(link => !descendants.includes(link.from));
+        const descendants = this.findDescendants(nodeId);
+        const nodesToKeep = nodes.filter(b => !descendants.includes(b.id));
+        const edgesToKeep = edges.filter(link => !descendants.includes(link.from));
 
-        const updatedBlock = {...block, type: 'end', linkedBlocks: []};
+        const updatedNode = {...node, type: 'end', linkedNodes: []};
 
         this.setState({
-            blocks: blocksToKeep.map(b => b.id === blockId ? updatedBlock : b),
-            links: linksToKeep,
+            nodes: nodesToKeep.map(b => b.id === nodeId ? updatedNode : b),
+            edges: edgesToKeep,
         }, this.renderConnections);
     };
 
     /**
-     * Reverts an end block back to the default type.
-     * @param {number} blockId - The ID of the end block to be converted.
+     * Reverts an end node back to the default type.
+     * @param {number} nodeId - The ID of the end node to be converted.
      */
-    convertEndToDefaultBlock = (blockId) => {
+    convertEndToDefaultNode = (nodeId) => {
         this.setState((prevState) => ({
-            blocks: prevState.blocks.map(block =>
-                block.id === blockId && block.type === 'end'
-                    ? {...block, type: 'default'}
-                    : block
+            nodes: prevState.nodes.map(node =>
+                node.id === nodeId && node.type === 'end'
+                    ? {...node, type: 'default'}
+                    : node
             ),
         }), this.renderConnections);
     };
 
     /**
-     * Renders the connection lines between blocks, handling their SVG paths and optional interaction buttons.
+     * Renders the connection lines between nodes, handling their SVG paths and optional interaction buttons.
      */
     renderConnections = () => {
-        const {blocks, links} = this.state;
-        const blockWidth = 318;
-        const blockHeight = 100;
+        const {nodes, edges} = this.state;
+        const nodeWidth = 318;
+        const nodeHeight = 100;
 
-        return links.map((link, index) => {
-            const fromBlock = this.getBlock(link.from);
-            const toBlock = this.getBlock(link.to);
+        return edges.map((link, index) => {
+            const fromNode = this.getNode(link.from);
+            const toNode = this.getNode(link.to);
 
-            if (!fromBlock || !toBlock) return null;
+            if (!fromNode || !toNode) return null;
 
-            // Dynamically find block height
-            const fromBlockElement = document.getElementById(`block-${fromBlock.id}`);
-            const toBlockElement = document.getElementById(`block-${toBlock.id}`);
+            // Dynamically find node height
+            const fromNodeElement = document.getElementById(`node-${fromNode.id}`);
+            const toNodeElement = document.getElementById(`node-${toNode.id}`);
 
-            const blockActualHeight = fromBlockElement?.offsetHeight || blockHeight;
+            const nodeActualHeight = fromNodeElement?.offsetHeight || nodeHeight;
 
-            let fromX = fromBlock.position.x + blockWidth / 2;
-            let fromY = fromBlock.position.y + blockActualHeight;
-            let toX = toBlock.position.x + blockWidth / 2;
-            let toY = toBlock.position.y;
+            let fromX = fromNode.position.x + nodeWidth / 2;
+            let fromY = fromNode.position.y + nodeActualHeight;
+            let toX = toNode.position.x + nodeWidth / 2;
+            let toY = toNode.position.y;
 
             const {fromPosition, toPosition} = link;
             // Calculate specific from/to positions if specified
             switch (fromPosition) {
                 case 'top':
-                    fromY = fromBlock.position.y;
+                    fromY = fromNode.position.y;
                     break;
                 case 'right':
-                    fromX = fromBlock.position.x + blockWidth;
-                    fromY = fromBlock.position.y + blockHeight / 2;
+                    fromX = fromNode.position.x + nodeWidth;
+                    fromY = fromNode.position.y + nodeHeight / 2;
                     break;
                 case 'bottom':
-                    fromY = fromBlock.position.y + blockHeight;
+                    fromY = fromNode.position.y + nodeHeight;
                     break;
                 case 'left':
-                    fromX = fromBlock.position.x;
-                    fromY = fromBlock.position.y + blockHeight / 2;
+                    fromX = fromNode.position.x;
+                    fromY = fromNode.position.y + nodeHeight / 2;
                     break;
                 default:
                     break;
@@ -671,18 +671,18 @@ class FlowBuilder extends Component {
 
             switch (toPosition) {
                 case 'top':
-                    toY = toBlock.position.y;
+                    toY = toNode.position.y;
                     break;
                 case 'right':
-                    toX = toBlock.position.x + blockWidth;
-                    toY = toBlock.position.y + blockHeight / 2;
+                    toX = toNode.position.x + nodeWidth;
+                    toY = toNode.position.y + nodeHeight / 2;
                     break;
                 case 'bottom':
-                    toY = toBlock.position.y + blockHeight;
+                    toY = toNode.position.y + nodeHeight;
                     break;
                 case 'left':
-                    toX = toBlock.position.x;
-                    toY = toBlock.position.y + blockHeight / 2;
+                    toX = toNode.position.x;
+                    toY = toNode.position.y + nodeHeight / 2;
                     break;
                 default:
                     break;
@@ -691,7 +691,7 @@ class FlowBuilder extends Component {
             const midX = (fromX + toX) / 2;
             const midY = (fromY + toY) / 2;
 
-            const isBranchPath = fromBlock.type === 'branch';
+            const isBranchPath = fromNode.type === 'branch';
             const path = isBranchPath
                 ? `M${fromX} ${fromY} L${fromX} ${(fromY + 40)} L${toX} ${(fromY + 40)} L${toX} ${toY}`
                 : `M${fromX},${fromY} C${fromX},${fromY + 50} ${toX},${toY - 50} ${toX},${toY}`;
@@ -724,8 +724,8 @@ class FlowBuilder extends Component {
                     {!isBranchPath && (
                         <>
                             <button
-                                className="add-button block-between"
-                                onClick={() => this.addBlockBetween(link.from, link.to)}
+                                className="add-button node-between"
+                                onClick={() => this.addNodeBetween(link.from, link.to)}
                                 style={{
                                     position: 'absolute',
                                     left: midX - 15,
@@ -754,21 +754,21 @@ class FlowBuilder extends Component {
                 </div>
             );
         }).concat(
-            blocks.map((block) => {
-                const isLastBlock = !links.some(link => link.from === block.id);
-                if (!isLastBlock || block.type === 'end') return null; // Skip rendering for end block or if it is not the last in the chain
+            nodes.map((node) => {
+                const isLastNode = !edges.some(link => link.from === node.id);
+                if (!isLastNode || node.type === 'end') return null; // Skip rendering for end node or if it is not the last in the chain
 
-                const blockElement = document.getElementById(`block-${block.id}`);
-                const blockActualHeight = blockElement?.offsetHeight || 130;
+                const nodeElement = document.getElementById(`node-${node.id}`);
+                const nodeActualHeight = nodeElement?.offsetHeight || 130;
 
-                const x = block.position.x + blockWidth / 2;
-                const y = block.position.y + blockActualHeight;
+                const x = node.position.x + nodeWidth / 2;
+                const y = node.position.y + nodeActualHeight;
 
                 return (
                     <button
-                        key={`last-${block.id}`}
+                        key={`last-${node.id}`}
                         className="add-button"
-                        onClick={() => this.selectBlock(block.id, 'block')}
+                        onClick={() => this.selectNode(node.id, 'node')}
                         style={{
                             position: 'absolute',
                             left: x - 15,
@@ -785,14 +785,14 @@ class FlowBuilder extends Component {
     };
 
     /**
-     * Finds and returns all descendant block IDs of a given block recursively.
-     * @param {number} blockId - The ID of the block whose descendants are to be found.
-     * @param {Array} updatedLinks - Optional, allows for passing a specific set of links for traversal.
-     * @returns {Array} - List of descendant block IDs.
+     * Finds and returns all descendant node IDs of a given node recursively.
+     * @param {number} nodeId - The ID of the node whose descendants are to be found.
+     * @param {Array} updatedEdges - Optional, allows for passing a specific set of edges for traversal.
+     * @returns {Array} - List of descendant node IDs.
      */
-    findDescendants = (blockId, updatedLinks = []) => {
-        if (!updatedLinks.length) {
-            updatedLinks = this.state.links;
+    findDescendants = (nodeId, updatedEdges = []) => {
+        if (!updatedEdges.length) {
+            updatedEdges = this.state.edges;
         }
         const visited = new Set();  // To track visited nodes and prevent cycles
         const collectDescendants = (id) => {
@@ -800,7 +800,7 @@ class FlowBuilder extends Component {
             visited.add(id);
 
             let descendants = [];
-            updatedLinks.forEach(link => {
+            updatedEdges.forEach(link => {
                 if (link.from === id) {
                     descendants.push(link.to);
                     descendants.push(...collectDescendants(link.to));
@@ -810,110 +810,110 @@ class FlowBuilder extends Component {
             return descendants;
         };
 
-        return collectDescendants(blockId);
+        return collectDescendants(nodeId);
     };
 
     /**
-     * Removes a block and all its descendants from the canvas.
-     * @param {number} blockId - The ID of the block to be removed.
+     * Removes a node and all its descendants from the canvas.
+     * @param {number} nodeId - The ID of the node to be removed.
      */
-    removeBlockAndDescendants = (blockId) => {
-        const {blocks, links} = this.state;
+    removeNodeAndDescendants = (nodeId) => {
+        const {nodes, edges} = this.state;
 
-        // Check if the block is directly linked from a branch
-        const isLinkedFromBranch = links.some(link =>
-            link.to === blockId && this.getBlock(link.from)?.type === 'branch'
+        // Check if the node is directly linked from a branch
+        const isLinkedFromBranch = edges.some(link =>
+            link.to === nodeId && this.getNode(link.from)?.type === 'branch'
         );
 
         if (isLinkedFromBranch) {
-            alert('Cannot delete a block that is part of a branch connection.');
+            alert('Cannot delete a node that is part of a branch connection.');
             return; // Skip deleting if it's linked from a branch
         }
 
-        // Collect all blocks to be deleted
-        const descendants = this.findDescendants(blockId);
-        const blocksToDelete = [blockId, ...descendants];
+        // Collect all nodes to be deleted
+        const descendants = this.findDescendants(nodeId);
+        const nodesToDelete = [nodeId, ...descendants];
 
-        // Update blocks and links excluding these
-        const updatedBlocks = blocks.filter(block => !blocksToDelete.includes(block.id));
-        const updatedLinks = links.filter(link => !(blocksToDelete.includes(link.from) || blocksToDelete.includes(link.to)));
+        // Update nodes and edges excluding these
+        const updatedNodes = nodes.filter(node => !nodesToDelete.includes(node.id));
+        const updatedEdges = edges.filter(link => !(nodesToDelete.includes(link.from) || nodesToDelete.includes(link.to)));
 
         this.setState({
-            blocks: updatedBlocks,
-            links: updatedLinks,
+            nodes: updatedNodes,
+            edges: updatedEdges,
         }, this.renderConnections);
     };
 
     /**
-     * Recursively shifts blocks down to make space for new additions in the workflow.
+     * Recursively shifts nodes down to make space for new additions in the workflow.
      *
-     * @param {number} startBlockId - The ID of the block from where the shift should start.
-     * @param {Array} updatedBlocks - The array of updated blocks that need to be shifted.
-     * @param {Array} updatedLinks - The array of updated links to find descendants.
-     * @param {number} [blockHeight=100] - The assumed height of each block.
+     * @param {number} startNodeId - The ID of the node from where the shift should start.
+     * @param {Array} updatedNodes - The array of updated nodes that need to be shifted.
+     * @param {Array} updatedEdges - The array of updated edges to find descendants.
+     * @param {number} [nodeHeight=100] - The assumed height of each node.
      */
-    shiftBlocksDown = (startBlockId, updatedBlocks, updatedLinks, blockHeight = 100) => {
-        const shiftY = blockHeight + 170;
-        const seenBlocks = new Set();
+    shiftNodesDown = (startNodeId, updatedNodes, updatedEdges, nodeHeight = 100) => {
+        const shiftY = nodeHeight + 170;
+        const seenNodes = new Set();
 
-        const shiftRecursive = (blockId) => {
-            // Base condition: check for cycles or already shifted blocks
-            if (seenBlocks.has(blockId)) return;
-            seenBlocks.add(blockId);
+        const shiftRecursive = (nodeId) => {
+            // Base condition: check for cycles or already shifted nodes
+            if (seenNodes.has(nodeId)) return;
+            seenNodes.add(nodeId);
 
-            // Find the block to shift
-            const block = updatedBlocks.find(block => block.id === blockId);
-            if (!block) return;
+            // Find the node to shift
+            const node = updatedNodes.find(node => node.id === nodeId);
+            if (!node) return;
 
             // Apply the shift downward
-            block.position.y += shiftY;
+            node.position.y += shiftY;
 
             // Identify and shift its direct descendants
-            updatedLinks.forEach(link => {
-                if (link.from === blockId) {
+            updatedEdges.forEach(link => {
+                if (link.from === nodeId) {
                     shiftRecursive(link.to);
                 }
             });
         };
 
 
-        shiftRecursive(startBlockId);
+        shiftRecursive(startNodeId);
     };
 
     /**
-     * Renders block-specific action buttons based on conditions like type and descendant presence.
-     * @param {number} blockId - The ID of the block for which actions are to be rendered.
+     * Renders node-specific action buttons based on conditions like type and descendant presence.
+     * @param {number} nodeId - The ID of the node for which actions are to be rendered.
      */
-    renderBlockActions = (blockId) => {
-        const {links} = this.state;
-        const block = this.getBlock(blockId)
-        if (block.type === 'start') return null; // Don't allow deletion of these
+    renderNodeActions = (nodeId) => {
+        const {edges} = this.state;
+        const node = this.getNode(nodeId)
+        if (node.type === 'start') return null; // Don't allow deletion of these
 
-        // Determine if the block is directly linked as a child of a branch
-        const isDirectBranchDescendant = links.some(link =>
-            link.to === block.id &&
-            this.getBlock(link.from)?.type === 'branch'
+        // Determine if the node is directly linked as a child of a branch
+        const isDirectBranchDescendant = edges.some(link =>
+            link.to === node.id &&
+            this.getNode(link.from)?.type === 'branch'
         );
-        const hasDescendants = this.findDescendants(blockId).length
+        const hasDescendants = this.findDescendants(nodeId).length
 
         return (
-            <div className="block-actions">
+            <div className="node-actions">
                 {!isDirectBranchDescendant && (
-                    <button onClick={() => this.removeBlockAndDescendants(block.id)}>
-                        Remove Block
+                    <button onClick={() => this.removeNodeAndDescendants(node.id)}>
+                        Remove Node
                     </button>
                 )}
 
                 {!hasDescendants && (
                     <>
-                        {block.type === 'default' && (
-                            <button onClick={() => this.convertToEndBlock(blockId)}>
-                                Convert to End Block
+                        {node.type === 'default' && (
+                            <button onClick={() => this.convertToEndNode(nodeId)}>
+                                Convert to End Node
                             </button>
                         )}
-                        {block.type === 'end' && (
-                            <button onClick={() => this.convertEndToDefaultBlock(blockId)}>
-                                Convert to Default Block
+                        {node.type === 'end' && (
+                            <button onClick={() => this.convertEndToDefaultNode(nodeId)}>
+                                Convert to Default Node
                             </button>
                         )}
                     </>
@@ -923,56 +923,56 @@ class FlowBuilder extends Component {
     };
 
     /**
-     * Removes a specified link between two blocks and checks for any blocks that become disjoint.
-     * @param {number} fromId - The ID of the block where the link starts.
-     * @param {number} toId - The ID of the block where the link ends.
+     * Removes a specified link between two nodes and checks for any nodes that become disjoint.
+     * @param {number} fromId - The ID of the node where the link starts.
+     * @param {number} toId - The ID of the node where the link ends.
      */
     removeLink = (fromId, toId) => {
-        const {blocks, links} = this.state;
+        const {nodes, edges} = this.state;
 
         // Remove the specified link
-        const updatedLinks = links.filter(link => !(link.from === fromId && link.to === toId));
+        const updatedEdges = edges.filter(link => !(link.from === fromId && link.to === toId));
 
         // Helper function to detect true disconnects
-        const isDisjoint = (blockId, links) => {
-            return !links.some(link => link.to === blockId);
+        const isDisjoint = (nodeId, edges) => {
+            return !edges.some(link => link.to === nodeId);
         };
 
 
-        // Check which blocks would become disjointed
-        const blocksToRemove = [];
-        if (isDisjoint(toId, updatedLinks)) {
-            blocksToRemove.push(toId, ...this.findDescendants(toId, updatedLinks));
+        // Check which nodes would become disjointed
+        const nodesToRemove = [];
+        if (isDisjoint(toId, updatedEdges)) {
+            nodesToRemove.push(toId, ...this.findDescendants(toId, updatedEdges));
         }
 
         // Only remove nodes that are truly isolated
-        const updatedBlocks = blocks.filter(block => !blocksToRemove.includes(block.id));
-        const validLinks = updatedLinks.filter(link =>
-            updatedBlocks.some(block => block.id === link.from) &&
-            updatedBlocks.some(block => block.id === link.to)
+        const updatedNodes = nodes.filter(node => !nodesToRemove.includes(node.id));
+        const validEdges = updatedEdges.filter(link =>
+            updatedNodes.some(node => node.id === link.from) &&
+            updatedNodes.some(node => node.id === link.to)
         );
 
         this.setState({
-            blocks: updatedBlocks,
-            links: validLinks,
+            nodes: updatedNodes,
+            edges: validEdges,
         }, this.renderConnections);
     };
 
     /**
-     * Retrieves a block object from the current state by its ID.
-     * @param {number} id - The ID of the block to be retrieved.
-     * @returns {object|null} - The block object if found, otherwise null.
+     * Retrieves a node object from the current state by its ID.
+     * @param {number} id - The ID of the node to be retrieved.
+     * @returns {object|null} - The node object if found, otherwise null.
      */
-    getBlock = (id) => {
-        return this.state.blocks.find((block) => block.id === id);
+    getNode = (id) => {
+        return this.state.nodes.find((node) => node.id === id);
     };
 
     /**
-     * Renders the main structure of the FlowBuilder component, including the panels, blocks, and connections.
+     * Renders the main structure of the FlowBuilder component, including the panels, nodes, and connections.
      * @returns {JSX.Element} - The main component structure rendered as JSX.
      */
     render() {
-        const {canvasHeight, isBlockPanelOpen, isPropertyPanelOpen, activeBlock, spaceDown, dragging} = this.state;
+        const {canvasHeight, isNodePanelOpen, isPropertyPanelOpen, activeNode, spaceDown, dragging} = this.state;
         const cursorStyle = spaceDown
             ? dragging === 'canvas'
                 ? 'grabbing'
@@ -981,11 +981,11 @@ class FlowBuilder extends Component {
 
         return (
             <div className="canvas-container">
-                {isBlockPanelOpen && (
-                    <BlockPanel
-                        block={activeBlock}
+                {isNodePanelOpen && (
+                    <NodePanel
+                        node={activeNode}
                         closePanel={this.handlePanelCollapse}
-                        handleBlockSelect={this.handleBlockSelect}
+                        handleNodeSelect={this.handleNodeSelect}
                     />
                 )}
                 <div
@@ -998,27 +998,27 @@ class FlowBuilder extends Component {
                     onMouseMove={this.handleMouseMove}
                 >
                     <div className="connections">{this.renderConnections()}</div>
-                    {this.state.blocks.map((block) => (
-                        <Block
-                            key={block.id}
-                            block={block}
-                            onMouseDown={(event) => this.handleMouseDown(event, block.id)}
-                            onLinkClick={(position) => this.handleLinkClick(position, block.id)}
-                            convertToBranchBlock={() => this.convertToBranchBlock(block.id)}
-                            addBranch={() => this.addBranch(block.id)}
-                            renderBlockActions={this.renderBlockActions(block.id)}
+                    {this.state.nodes.map((node) => (
+                        <Node
+                            key={node.id}
+                            node={node}
+                            onMouseDown={(event) => this.handleMouseDown(event, node.id)}
+                            onLinkClick={(position) => this.handleLinkClick(position, node.id)}
+                            convertToBranchNode={() => this.convertToBranchNode(node.id)}
+                            addBranch={() => this.addBranch(node.id)}
+                            renderNodeActions={this.renderNodeActions(node.id)}
                             activeLinkPosition={
-                                this.state.activeLinkPosition?.blockId === block.id
+                                this.state.activeLinkPosition?.nodeId === node.id
                                     ? this.state.activeLinkPosition.position
                                     : null
                             }
-                            isActive={activeBlock?.id === block.id}
-                            onClick={() => this.selectBlock(block.id, 'property')}
+                            isActive={activeNode?.id === node.id}
+                            onClick={() => this.selectNode(node.id, 'property')}
                         />
                     ))}
                 </div>
                 {isPropertyPanelOpen && (
-                    <PropertyPanel block={activeBlock}
+                    <PropertyPanel node={activeNode}
                                    closePanel={this.handlePanelCollapse}
                                    onSubmit={this.handlePropertyPanelSubmit}
                     />

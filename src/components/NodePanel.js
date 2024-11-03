@@ -5,7 +5,7 @@ import IconSiteMap from "../assets/icon/IconSiteMap";
 import IconSquareX from "../assets/icon/IconSquareX";
 import IconX from "../assets/icon/IconX";
 
-class BlockPanel extends Component {
+class NodePanel extends Component {
     constructor(props) {
         super(props);
         this.state = {}
@@ -16,13 +16,13 @@ class BlockPanel extends Component {
     }
 
     render() {
-        const {block, handleBlockSelect} = this.props;
+        const {node, handleNodeSelect} = this.props;
 
         return (
             <div className={classNames("panel-wrapper")}>
                 <div className={classNames("panel")}>
                     <div className="panel-header">
-                        <h2>Blocks</h2>
+                        <h2>Nodes</h2>
                         <div style={{
                             cursor: "pointer"
                         }} onClick={(event) => this.handleOnClose(event)}>
@@ -31,22 +31,22 @@ class BlockPanel extends Component {
                     </div>
 
                     <div className="panel-body">
-                        <div className="block-widget-card">
-                            <div className="block-widget-card-header">
-                                <h3>Building blocks</h3>
+                        <div className="node-widget-card">
+                            <div className="node-widget-card-header">
+                                <h3>Building nodes</h3>
                             </div>
-                            <div className="block-widget-list">
-                                <div className="block-list-item"
-                                     onClick={(event) => handleBlockSelect(block.id, 'default')}>
+                            <div className="node-widget-list">
+                                <div className="node-list-item"
+                                     onClick={(event) => handleNodeSelect(node.id, 'default')}>
                                     <div className="icon">
                                         <IconSquarePlus/>
                                     </div>
                                     <div className="title-wrapper">
-                                        <div className="title">Simple Block</div>
+                                        <div className="title">Simple Node</div>
                                     </div>
                                 </div>
-                                <div className="block-list-item"
-                                     onClick={(event) => handleBlockSelect(block.id, 'branch')}>
+                                <div className="node-list-item"
+                                     onClick={(event) => handleNodeSelect(node.id, 'branch')}>
                                     <div className="icon">
                                         <IconSiteMap/>
                                     </div>
@@ -54,13 +54,13 @@ class BlockPanel extends Component {
                                         <div className="title">If/then branch</div>
                                     </div>
                                 </div>
-                                <div className="block-list-item"
-                                     onClick={(event) => handleBlockSelect(block.id, 'end')}>
+                                <div className="node-list-item"
+                                     onClick={(event) => handleNodeSelect(node.id, 'end')}>
                                     <div className="icon">
                                         <IconSquareX/>
                                     </div>
                                     <div className="title-wrapper">
-                                        <div className="title">End Block</div>
+                                        <div className="title">End Node</div>
                                     </div>
                                 </div>
                             </div>
@@ -72,4 +72,4 @@ class BlockPanel extends Component {
     }
 }
 
-export default BlockPanel
+export default NodePanel

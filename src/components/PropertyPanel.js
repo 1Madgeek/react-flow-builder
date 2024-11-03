@@ -4,7 +4,6 @@ import IconX from "../assets/icon/IconX";
 import IconSquarePlus from "../assets/icon/IconSquarePlus";
 import IconSiteMap from "../assets/icon/IconSiteMap";
 import IconSquareX from "../assets/icon/IconSquareX";
-import block from "./blocks/Block";
 
 class PropertyPanel extends Component {
     constructor(props) {
@@ -16,23 +15,23 @@ class PropertyPanel extends Component {
     }
 
     render() {
-        const {activeBlock} = this.props;
+        const {activeNode} = this.props;
 
         return (
             <div className={classNames("panel-wrapper")}>
                 <div className={classNames("panel")}>
                     <div className="panel-header">
-                        <h2>{block?.name || 'Block'} Properties</h2>
+                        <h2>{activeNode?.name || 'Node'} Properties</h2>
                         <div style={{cursor: "pointer"}} onClick={(event) => this.handleOnClose(event)}>
                             <IconX strokeWidth={1}/>
                         </div>
                     </div>
 
                     <div className="panel-body">
-                        {activeBlock && (
+                        {activeNode && (
                             <div>
-                                <p>Block ID: {activeBlock.id}</p>
-                                <p>Block Type: {activeBlock.type}</p>
+                                <p>Node ID: {activeNode.id}</p>
+                                <p>Node Type: {activeNode.type}</p>
                             </div>
                         )}
                     </div>
