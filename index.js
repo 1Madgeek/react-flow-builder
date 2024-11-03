@@ -1,11 +1,11 @@
 import FlowBuilder from "./dist/components/FlowBuilder";
-import BlockPanel from "./dist/components/BlockPanel";
+import NodePanel from "./dist/components/NodePanel";
 import PropertyPanel from "./dist/components/PropertyPanel";
 
-import Block from "./dist/components/blocks/Block";
-import DefaultBlock from "./dist/components/blocks/DefaultBlock";
-import BranchBlock from "./dist/components/blocks/BranchBlock";
-import StartBlock from "./dist/components/blocks/StartBlock";
-import EndBlock from "./dist/components/blocks/EndBlock";
+import Node from "./dist/components/nodes/Node";
+import DefaultNode from "./dist/components/nodes/DefaultNode";
+import BranchNode from "./dist/components/nodes/BranchNode";
+import StartNode from "./dist/components/nodes/StartNode";
+import EndNode from "./dist/components/nodes/EndNode";
 
-export {FlowBuilder, BlockPanel, PropertyPanel, Block, DefaultBlock, BranchBlock, StartBlock, EndBlock};
+export {FlowBuilder, NodePanel, PropertyPanel, Node, DefaultNode, BranchNode, StartNode, EndNode};
