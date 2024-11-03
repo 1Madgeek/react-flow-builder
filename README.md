@@ -6,8 +6,14 @@ delivering a streamlined experience for developers. With easy setup and rich cus
 users to create and visualize workflows effectively.
 
 WIP...
+[React Flow Builder Demo](https://react-flow-builder-demo.vercel.app/)
 
 ![Work In Progress](screenshots/screenshot-4.png)
+
+## Demo
+
+[React Flow Builder Demo](https://react-flow-builder-demo.vercel.app/)
+
 
 ## Getting Started
 
@@ -20,16 +26,96 @@ npm install @madgeek_in/react-flow-builder
 yarn add @madgeek_in/react-flow-builder
 ```
 
-### Usage
-```javascript
-import {FlowBuilder} from '@madgeek_in/react-flow-builder';
+### Basic Usage
+The FlowBuilder component is capable of rendering a flowchart composed of nodes and edges, offering interactivity through dragging and updating node properties. Here is the minimal setup required to get started with FlowBuilder.
 
-<FlowBuilder allowDragging={true} flow={'vertical'}/>
+```javascript
+import React from 'react';
+import { FlowBuilder } from '@madgeek_in/react-flow-builder';
+
+// Function to render the property panel for a node
+const renderPropertyPanel = (node) => {
+    // Custom logic for rendering node properties goes here
+};
+
+// Function that gets called whenever nodes or edges are updated
+const handleUpdate = (nodes, edges) => {
+    console.log('Updated Nodes:', nodes);
+    console.log('Updated Edges:', edges);
+};
+
+const nodes = []; // Array of initial nodes
+const edges = []; // Array of initial edges
+
+function App() {
+    return (
+        <div className="App">
+            <FlowBuilder
+                nodes={nodes}
+                edges={edges}
+                onUpdate={handleUpdate}
+                renderPropertyPanel={renderPropertyPanel}
+                allowDragging={true} // Enable or disable dragging of nodes
+                flow="vertical" // Define the flow direction (vertical or horizontal)
+            />
+        </div>
+    );
+}
+
+export default App;
+```
+### Explanation
+
+- **Nodes and Edges:** These are the primary inputs to the FlowBuilder. Nodes represent discrete elements, while edges denote connections between them. Customize the arrays to set initial configurations.
+- **`onUpdate` Callback**: This function gets called whenever the nodes or edges are updated, allowing you to handle their state changes or save them.
+- **`renderPropertyPanel` Function**: Customize this function for rendering node-specific properties. You can leverage this to provide custom UIs for node data editing.
+- **Draggable Nodes**: Whether nodes can be repositioned via dragging is controlled through the `allowDragging` prop.
+- **Flow Direction:** The flow prop determines the primary orientation of node arrangement within the canvas.
+
+## Advanced Usage
+For enhanced customization, such as overriding existing functionalities or extending the base component, you can create a subclass of `FlowBuilder`:
+
+```javascript
+import React from 'react';
+import { FlowBuilder } from '@madgeek_in/react-flow-builder';
+
+class CustomFlowBuilder extends FlowBuilder {
+  // Override existing functionalities or add new methods here
+  // For example, we can override the `addNode` method
+
+  addNode(prevNodeId, type = 'default') {
+    // Customized logic for adding a new node
+    super.addNode(prevNodeId, type);
+    // Additional custom operations
+  }
+
+  // More custom methods and overrides as needed
+}
+
+export default CustomFlowBuilder;
+
+// In your application
+function App() {
+  return (
+    <div className="App">
+      <CustomFlowBuilder
+        nodes={nodes}
+        edges={edges}
+        onUpdate={handleUpdate}
+        renderPropertyPanel={renderPropertyPanel}
+        allowDragging={true}
+        flow="vertical"
+      />
+    </div>
+  );
+}
 ```
 
-## Demo
+### Explanation
+- **Class Inheritance:** By creating a subclass of FlowBuilder, you get access to its internal methods and can override them as needed. This offers flexibility if the default functionality does not meet certain requirements.
+- **Custom Methods:** You can define new methods or override existing ones, enabling more complex interactions with nodes, such as custom node creation or enhanced UI responses.
 
-[React Flow Builder Demo](https://react-flow-builder-demo.vercel.app/)
+
 
 ## Features
 

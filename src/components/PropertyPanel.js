@@ -1,9 +1,6 @@
 import React, {Component} from "react";
 import classNames from "classnames";
 import IconX from "../assets/icon/IconX";
-import IconSquarePlus from "../assets/icon/IconSquarePlus";
-import IconSiteMap from "../assets/icon/IconSiteMap";
-import IconSquareX from "../assets/icon/IconSquareX";
 
 class PropertyPanel extends Component {
     constructor(props) {
@@ -15,7 +12,7 @@ class PropertyPanel extends Component {
     }
 
     render() {
-        const {activeNode} = this.props;
+        const {activeNode, renderPropertyPanel} = this.props;
 
         return (
             <div className={classNames("panel-wrapper")}>
@@ -28,12 +25,7 @@ class PropertyPanel extends Component {
                     </div>
 
                     <div className="panel-body">
-                        {activeNode && (
-                            <div>
-                                <p>Node ID: {activeNode.id}</p>
-                                <p>Node Type: {activeNode.type}</p>
-                            </div>
-                        )}
+                        {renderPropertyPanel}
                     </div>
                 </div>
             </div>

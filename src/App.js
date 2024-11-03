@@ -4,7 +4,14 @@ import FlowBuilder from "./components/FlowBuilder";
 function App() {
     return (
         <div className="App">
-            <FlowBuilder allowDragging={true} flow={'vertical'}/>
+            <FlowBuilder nodes={[]}
+                         edges={[]}
+                         onUpdate={(nodes, edges) => {
+                         }}
+                         renderPropertyPanel={(node) => {
+                         }}
+                         allowDragging={true}
+                         flow={'vertical'}/>
         </div>
     );
 }

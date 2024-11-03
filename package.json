@@ -1,6 +1,6 @@
 {
   "name": "@madgeek_in/react-flow-builder",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "private": false,
   "dependencies": {
     "classnames": "^2.5.1",

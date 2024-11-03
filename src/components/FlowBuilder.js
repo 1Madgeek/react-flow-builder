@@ -11,8 +11,8 @@ class FlowBuilder extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            nodes: [],
-            edges: [],
+            nodes: this.props.nodes || [],
+            edges: this.props.edges || [],
             dragging: null,
             canvasHeight: 600,
             offset: {x: 0, y: 0},
@@ -42,19 +42,21 @@ class FlowBuilder extends Component {
      * Initializes the canvas with a starting node.
      */
     initializeCanvas = () => {
-        const initialNodes = [
-            {
-                id: 0,
-                position: {x: 50, y: 50},
-                type: 'start',
-                linkedNodes: []
-            },
-        ];
+        if (!this.state.nodes.length) {
+            const initialNodes = [
+                {
+                    id: 0,
+                    position: {x: 50, y: 50},
+                    type: 'start',
+                    linkedNodes: []
+                },
+            ];
 
-        this.setState({
-            nodes: initialNodes,
-            edges: [],
-        }, this.arrangeNodes);
+            this.setState({
+                nodes: initialNodes,
+                edges: [],
+            }, this.arrangeNodes);
+        }
     }
 
     /**
@@ -415,7 +417,7 @@ class FlowBuilder extends Component {
 
         this.setState((prevState) => {
             const fromNode = this.getNode(nodeId);
-            const toNode= this.getNode(toId);
+            const toNode = this.getNode(toId);
 
             if (!fromNode || !toNode) {
                 alert('Invalid nodes specified for linking.');
@@ -630,6 +632,10 @@ class FlowBuilder extends Component {
         const {nodes, edges} = this.state;
         const nodeWidth = 318;
         const nodeHeight = 100;
+
+        if (this.props.onUpdate) {
+            this.props.onUpdate(nodes, edges)
+        }
 
         return edges.map((link, index) => {
             const fromNode = this.getNode(link.from);
@@ -1021,6 +1027,7 @@ class FlowBuilder extends Component {
                     <PropertyPanel node={activeNode}
                                    closePanel={this.handlePanelCollapse}
                                    onSubmit={this.handlePropertyPanelSubmit}
+                                   renderPropertyPanel={this.props.renderPropertyPanel}
                     />
                 )}
             </div>
