@@ -265,8 +265,11 @@ We encourage contributions to improve FlowBuilder! Here are a few guidelines to 
 We specialize in:
 
 🚀 End-to-end product development – from idea to scalable solutions
+
 🎨 Custom UI/UX design – intuitive, user-friendly, and beautiful
+
 ⚡ Workflow automation & integrations – streamlining business processes
+
 🛠️ Open-source tools – like [React Flow Builder](https://github.com/sponsors/1Madgeek/dashboard/profile#) and [Tabler UI Kit](https://github.com/sponsors/1Madgeek/dashboard/profile#)
 
 We’re passionate about building scalable software products, collaborating with innovative teams, and contributing to the open-source community.
