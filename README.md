@@ -258,6 +258,23 @@ We encourage contributions to improve FlowBuilder! Here are a few guidelines to 
 
 - Let’s work together to make FlowBuilder better, one contribution at a time!
 
+## About the Creator
+
+👋 Hi, we’re [Madgeek](https://www.madgeek.in), a product and software development studio based in Bangalore, India.
+
+We specialize in:
+
+🚀 End-to-end product development – from idea to scalable solutions
+🎨 Custom UI/UX design – intuitive, user-friendly, and beautiful
+⚡ Workflow automation & integrations – streamlining business processes
+🛠️ Open-source tools – like [React Flow Builder](https://github.com/sponsors/1Madgeek/dashboard/profile#) and [Tabler UI Kit](https://github.com/sponsors/1Madgeek/dashboard/profile#)
+
+We’re passionate about building scalable software products, collaborating with innovative teams, and contributing to the open-source community.
+
+💡 If you’re looking for a technology partner to bring your product idea to life or need help with custom software development, we’d love to collaborate.
+
+📩 Reach out to us for partnerships, project collaborations, or consulting opportunities - [hello@madgeek.in](mailto:hello@madgeek.in/)
+
 ## 💕 Sponsor FlowBuilder
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-pink.svg)](https://github.com/sponsors/1Madgeek)
